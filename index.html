@@ -1,124 +1,1085 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
-  <base target="_top">
-  <meta charset="UTF-8"> <title>إرسال الملفات للمتدربين</title>
-  <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background-color: #eef1f5; color: #333; }
-    .container { max-width: 700px; margin: 30px auto; background: #ffffff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #ddd; }
-    h1 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
-    label { display: block; margin-bottom: 10px; font-weight: bold; color: #555; }
-    input[type="file"] { 
-      display: block;
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      background-color: #f9f9f9;
-      box-sizing: border-box; /* لضمان أن العرض يشمل الحشوة والحدود */
-    }
-    button { 
-      background-color: #007bff; /* لون أزرق جذاب */
-      color: white; 
-      padding: 12px 20px; 
-      border: none; 
-      border-radius: 5px; 
-      cursor: pointer; 
-      font-size: 17px; 
-      width: 100%; 
-      transition: background-color 0.3s ease;
-    }
-    button:hover:enabled { background-color: #0056b3; } /* تغيير اللون عند التحويم */
-    button:disabled { 
-      background-color: #cccccc; 
-      cursor: not-allowed; 
-    }
-    #output { 
-      margin-top: 25px; 
-      padding: 15px; 
-      background-color: #f0f8ff; 
-      border: 1px solid #b0e0e6; 
-      border-radius: 8px; 
-      min-height: 50px; 
-      max-height: 400px; /* لتحديد أقصى ارتفاع للنتائج */
-      overflow-y: auto; /* لإضافة شريط تمرير عند تجاوز الارتفاع */
-      white-space: pre-wrap; 
-      font-family: 'Roboto Mono', monospace; 
-      font-size: 14px;
-    }
-    .status-item { 
-      margin-bottom: 8px; 
-      padding-bottom: 5px; 
-      border-bottom: 1px dotted #e0e0e0; 
-    }
-    .status-item:last-child { border-bottom: none; }
-    .status-item.success { color: #28a745; font-weight: bold; } /* أخضر للنجاح */
-    .status-item.fail { color: #dc3545; font-weight: bold; } /* أحمر للفشل */
-    .initial-message { color: #6c757d; text-align: center; }
-  </style>
+    <meta charset="UTF-8" />
+    <title>نظام إصدار الشهادات</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
+    <style>
+        /* CSS الخاص بك بالكامل كما هو، مع بعض التعديلات البسيطة في ألوان الأزرار إذا لزم الأمر */
+        /* @font-face {            font-family: 'AmiriQuran';            src: url('fonts/AmiriQuran-Regular.woff2') format('woff2');            font-weight: normal;            font-style: normal;        }        */ /* uncomment if you have AmiriQuran font file */
+        body {
+            font-family: 'Segoe UI', 'AmiriQuran', Tahoma, Geneva, Verdana, sans-serif;
+            direction: rtl;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .tabs button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            font-size: 1.1em;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-grow: 1;
+            max-width: 220px;
+            white-space: nowrap;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .tabs button:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        .tabs button.active {
+            background: #0056b3;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            border-bottom: 3px solid #ffc107;
+        }
+        .tab-content {
+            display: none;
+            background: #fff;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            max-width: 900px;
+            margin: auto;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        input[type="text"], input[type="date"], input[type="email"], select {
+            width: calc(100% - 22px);
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus, input[type="date"]:focus, input[type="email"]:focus, select:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0,123,255,0.2);
+        }
+        button.submit, button.export-btn, button.send-all-emails-btn, #addParticipantBtn, button.send-all-certificates-link-btn {
+            padding: 12px 25px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 8px;
+            border: none;
+            color: white;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-top: 10px;
+        }
+        button.submit {
+            background: #28a745;
+        }
+        button.submit:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+        button.export-btn {
+            background: #007bff;
+        }
+        button.export-btn:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+        button.send-all-emails-btn {
+            background-color: #6f42c1; /* Purple */
+        }
+        button.send-all-emails-btn:hover {
+            background-color: #5a3597;
+            transform: translateY(-1px);
+        }
+        #addParticipantBtn {
+            background-color: #17a2b8; /* Info blue */
+        }
+        #addParticipantBtn:hover {
+            background-color: #138496;
+            transform: translateY(-1px);
+        }
+        .certificates {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px; /* Space between certificates */
+        }
+        /* --- Certificate Styling based on provided image TEMPLATE --- */
+        .certificate {
+            width: 900px; /* Adjusted width for the template image */
+            height: 650px; /* Adjusted height for the template image */
+            border: none;
+            background-color: transparent; /* Make background transparent to show image */
+            background-image: url('لقطة الشاشة 2025-06-19 201454.jpg'); /* !!! PATH TO YOUR TEMPLATE IMAGE !!! */
+            background-size: 100% 100%; /* Cover the entire area */
+            background-repeat: no-repeat;
+            position: relative; /* Crucial for absolute positioning of dynamic text */
+            box-sizing: border-box;
+            overflow: hidden; /* Ensure content stays within borders */
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1); /* Optional shadow for display */
+        }
+        /* Dynamic text positioning and styling */
+        .dynamic-text {
+            position: absolute;
+            text-align: center;
+            color: #000; /* Default color for dynamic text */
+            font-family: 'Segoe UI', 'AmiriQuran', Tahoma, Geneva, Verdana, sans-serif; /* Consistent font */
+            font-weight: bold; /* Match template boldness */
+            line-height: 1.2; /* Base line-height */
+            white-space: nowrap; /* Prevent line breaks for single-line elements */
+        }
+        /* Specific positions for each dynamic element - adjust these values precisely */
+        .participant-name {
+            top: 280px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.8em;
+            width: 600px;
+            color: rgb(6, 112, 102);
+        }
+        .workshop-details-section {
+            position: absolute;
+            width: 700px; /* Width of the text block */
+            top: 340px; /* تم التعديل لتنزيله بمقدار درجتين إضافيتين */
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            line-height: 1.8; /* تم التعديل لزيادة التباعد بين السطور */
+        }
+        /* New and adjusted positions for text within .workshop-details-section */
+        .workshop-details-section .intro-text {
+            position: absolute;
+            top: 0; /* Starts at the top of the section */
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.3em;
+            color: #000;
+            white-space: normal; /* Allow text to wrap if it's long */
+            width: 100%; /* Take full width of the section */
+            margin-bottom: 20px; /* مسافة إضافية بين النص التمهيدي واسم الدورة (زيادة) */
+        }
+        .workshop-details-section .duration-dynamic {
+            /* Position relative to parent workshop-details-section - adjusted logic */
+            display: inline-block; /* to flow with text */
+            font-size: 1.1em;
+            color: #000;
+            margin: 0 5px; /* Spacing around it */
+        }
+        .workshop-details-section .title-intro-text {
+            display: inline-block;
+            font-size: 1.1em;
+            color: #000;
+            margin: 0 5px;
+        }
+        .workshop-details-section .workshop-title-dynamic {
+            position: absolute; /* Keep absolute for precise placement on its own line */
+            top: 45px; /* تم التعديل لتنزيله بمقدار درجة لأسفل */
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.8em;
+            color: rgb(6, 112, 102);
+            width: 650px; /* Width for the title */
+            white-space: normal; /* Allow title to wrap */
+            margin-bottom: 25px; /* مسافة إضافية بين اسم الدورة وتاريخها (زيادة) */
+        }
+        .workshop-details-section .dates-dynamic {
+            position: absolute;
+            top: 100px; /* تم التعديل لتنزيله بمقدار درجة إضافية لأسفل */
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.3em;
+            color: #000;
+            width: 700px; /* Width for the dates */
+        }
+        .instructor-block {
+            position: absolute;
+            bottom: 40px; /* تم التعديل لرفعها للأعلى بمقدار درجتين */
+            right: 170px; /* From right edge */
+            text-align: center;
+            font-size: 0.9em;
+            color: #000;
+            line-height: 0.8;
+        }
+        .instructor-block .name {
+            font-weight: bold;
+        }
+        .dean-block {
+            position: absolute;
+            bottom: 40px; /* تم التعديل لرفعها للأعلى بمقدار درجتين */
+            left: 170px; /* From left edge */
+            text-align: center;
+            font-size: 0.9em;
+            color: #000;
+            line-height: 0.8;
+        }
+        .dean-block .name {
+            font-weight: bold;
+        }
+        /* --- End Certificate Styling --- */
+        .certificate-actions {
+            text-align: center;
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .certificate-actions button {
+            padding: 10px 20px;
+            margin: 0;
+            border-radius: 6px;
+            font-size: 0.95em;
+        }
+        /* .certificate-actions .send-email-btn { background-color: #ffc107; color: #212529; } */
+        /* .certificate-actions .send-email-btn:hover { background-color: #e0a800; } */
+        /* .certificate-actions .print-btn { background-color: #17a2b8; color: white; } */
+        /* .certificate-actions .print-btn:hover { background-color: #138496; } */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        table, th, td {
+            border: 1px solid #e0e0e0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            font-size: 1em;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tbody tr:hover {
+            background-color: #f0f8ff;
+        }
+        button.edit-btn, button.delete-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        button.edit-btn {
+            background-color: #ffc107;
+            color: #212529;
+            margin-left: 8px;
+        }
+        button.edit-btn:hover {
+            background-color: #e0a800;
+        }
+        button.delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        button.delete-btn:hover {
+            background-color: #c82333;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: block;
+            color: #555;
+        }
+        /* Styles for manual entry section */
+        .manual-entry-section {
+            border: 1px dashed #007bff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            background-color: #e6f2ff;
+        }
+        .manual-entry-section h3 {
+            color: #007bff;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .manual-entry-section input[type="text"],
+        .manual-entry-section input[type="email"] {
+            width: calc(50% - 25px); /* Half width with gap */
+            display: inline-block;
+            margin-left: 10px;
+            vertical-align: top;
+        }
+        .manual-entry-section input[type="text"]:first-child {
+            margin-right: 10px;
+            margin-left: 0;
+        }
+        .manual-entry-section button {
+            width: 100%;
+            margin-top: 15px;
+        }
+        /* Participant List Table within Upload Tab */
+        #participantListTable {
+            margin-top: 30px;
+            display: none;
+        }
+        #participantListTable.active {
+            display: table;
+        }
+        #participantListTable th, #participantListTable td {
+            font-size: 0.95em;
+            padding: 10px;
+        }
+        /* New button style for "إرسال الشهادات" */
+        button.send-all-certificates-link-btn {
+            background-color: #20c997;
+            color: white;
+            margin-right: 10px;
+        }
+        button.send-all-certificates-link-btn:hover {
+            background-color: #17a77d;
+            transform: translateY(-1px);
+        }
+        /* Responsive adjustments for course input fields */
+        #courseTab input[type="text"],
+        #courseTab input[type="date"] {
+            width: calc(50% - 15px); /* Two columns */
+            margin-left: 10px;
+            display: inline-block;
+        }
+        #courseTab input[type="text"]:nth-child(even),
+        #courseTab input[type="date"]:nth-child(even) {
+            margin-right: 10px;
+            margin-left: 0;
+        }
+        #courseTab input[type="date"]:first-of-type {
+            margin-left: 10px;
+        }
+        /* Print Styles - Crucial for background image and exact positioning */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .certificates, .certificates * {
+                visibility: visible;
+            }
+            .certificates {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                display: block;
+            }
+            .certificate {
+                width: 28cm; /* A4 landscape width */
+                height: 19cm; /* A4 landscape height */
+                border: none;
+                box-shadow: none;
+                page-break-after: always; /* Ensure each certificate is on a new page */
+                margin: 0 auto;
+                /* Ensure background image is printed */
+                background-image: url('لقطة الشاشة 2025-06-19 201454.jpg') !important; /* !!! PATH TO YOUR TEMPLATE IMAGE !!! */
+                background-size: 100% 100% !important;
+                background-repeat: no-repeat !important;
+                position: relative;
+                box-sizing: border-box;
+                overflow: hidden;
+                box-shadow: none;
+                page-break-after: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .certificate:last-child {
+                page-break-after: avoid;
+            }
+            .certificate-actions {
+                display: none;
+            }
+            /* Ensure dynamic text prints correctly with exact colors */
+            .dynamic-text {
+                position: absolute;
+                text-align: center;
+                color: #000 !important; /* Force black for print */
+                font-family: 'Segoe UI', 'AmiriQuran', Tahoma, Geneva, Verdana, sans-serif;
+                font-weight: bold;
+                line-height: 1.2;
+                white-space: nowrap;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .participant-name {
+                top: 280px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 1.8em !important;
+                width: 600px;
+                color: rgb(6, 112, 102) !important;
+            }
+            .workshop-details-section {
+                position: absolute;
+                width: 700px;
+                top: 340px; /* تم التعديل لتنزيله بمقدار درجتين إضافيتين */
+                left: 50%;
+                transform: translateX(-50%);
+                text-align: center;
+                line-height: 1.8 !important; /* تم التعديل لزيادة التباعد بين السطور */
+            }
+            .workshop-details-section .intro-text {
+                position: absolute;
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 1.3em !important;
+                color: #000 !important;
+                white-space: normal;
+                width: 100%;
+                margin-bottom: 20px !important; /* مسافة إضافية بين النص التمهيدي واسم الدورة (زيادة) */
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .workshop-details-section .duration-dynamic {
+                display: inline-block;
+                font-size: 1.1em !important;
+                color: #000 !important;
+                margin: 0 5px;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .workshop-details-section .title-intro-text {
+                display: inline-block;
+                font-size: 1.1em !important;
+                color: #000 !important;
+                margin: 0 5px;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .workshop-details-section .workshop-title-dynamic {
+                position: absolute;
+                top: 45px; /* تم التعديل لتنزيله بمقدار درجة لأسفل */
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 1.8em !important;
+                color: rgb(6, 112, 102) !important;
+                width: 650px;
+                white-space: normal;
+                margin-bottom: 25px !important; /* مسافة إضافية بين اسم الدورة وتاريخها (زيادة) */
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .workshop-details-section .dates-dynamic {
+                position: absolute;
+                top: 100px; /* تم التعديل لتنزيله بمقدار درجة إضافية لأسفل */
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 1.3em !important;
+                color: #000 !important;
+                width: 700px;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .instructor-block {
+                position: absolute;
+                bottom: 40px !important; /* تم التعديل لرفعها للأعلى بمقدار درجتين */
+                right: 170px;
+                text-align: center;
+                font-size: 0.9em !important;
+                color: #000 !important;
+                line-height: 0.8 !important;
+            }
+            .instructor-block .name {
+                font-weight: bold;
+                color: #000 !important;
+            }
+            .dean-block {
+                position: absolute;
+                bottom: 40px !important; /* تم التعديل لرفعها للأعلى بمقدار درجتين */
+                left: 170px;
+                text-align: center;
+                font-size: 0.9em !important;
+                color: #000 !important;
+                line-height: 0.8 !important;
+            }
+            .dean-block .name {
+                font-weight: bold;
+                color: #000 !important;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>نظام إرسال الملفات للمتدربين</h1>
-    <form id="uploadForm">
-      <label for="csvFile">الخطوة 1: رفع ملف CSV يحتوي على الأسماء والإيميلات (الاسم,الايميل):</label>
-      <input type="file" id="csvFile" name="csvFile" accept=".csv, .txt">
-      <br>
-      <button type="submit" id="submitBtn">الخطوة 2: بدء الإرسال للمتدربين</button>
-    </form>
-    <div id="output">
-      <p class="initial-message">النتائج ستظهر هنا بعد الإرسال. تأكد من أن ملفات المتدربين موجودة في مجلد Google Drive المحدد.</p>
+    <h1>📄 نظام إصدار الشهادات</h1>
+    <div class="tabs">
+        <button class="active" onclick="showTab('courseTab', event)">➕ إضافة بيانات الدورة</button>
+        <button onclick="showTab('uploadTab', event)">📥 إدارة المتدربين</button>
+        <button onclick="showTab('exportTab', event)">📤 عرض وتصدير الشهادات</button>
     </div>
-  </div>
 
-  <script>
-    document.getElementById('uploadForm').addEventListener('submit', function(e) {
-      e.preventDefault(); // منع السلوك الافتراضي لإرسال النموذج
-      
-      const csvFile = document.getElementById('csvFile').files[0]; // الحصول على الملف المرفوع
-      const outputDiv = document.getElementById('output'); // عنصر لعرض النتائج
-      const submitBtn = document.getElementById('submitBtn'); // زر الإرسال
+    <div id="courseTab" class="tab-content active">
+        <h2>إضافة وتعديل بيانات الدورة</h2>
+        <input type="text" id="courseName" placeholder="اسم الدورة (مثال: دورة الفوتوشوب)" />
+        <input type="text" id="collegeName" placeholder="اسم الكلية (مثال: الكلية التقنية للبنات بالجوف)" />
+        <input type="text" id="workshopTitle" placeholder="عنوان الورشة (مثال: تصميم فن الجرافيك من الصفر حتى الاحتراف)" />
+        <input type="text" id="workshopDuration" placeholder="مدة الورشة (اختياري، مثال: 20 ساعة)" />
+        <input type="date" id="startDate" />
+        <input type="date" id="endDate" />
+        <input type="text" id="instructorName" placeholder="اسم المدرب" />
+        <input type="text" id="instructorTitle" placeholder="المسمى الوظيفي للمدرب" />
+        <input type="text" id="deanName" placeholder="اسم العميد/العميدة" />
+        <input type="text" id="deanTitle" placeholder="المسمى الوظيفي للعميد/العميدة" />
+        <button class="submit" onclick="saveCourse()">حفظ بيانات الدورة</button>
 
-      // التحقق مما إذا تم تحديد ملف CSV
-      if (!csvFile) {
-        outputDiv.innerHTML = '<span class="status-item fail">الرجاء تحديد ملف CSV أولاً!</span>';
-        return; // إيقاف التنفيذ إذا لم يتم اختيار ملف
-      }
+        <h2>الدورات المضافة</h2>
+        <table id="coursesTable">
+            <thead>
+                <tr>
+                    <th>اسم الدورة</th>
+                    <th>تاريخ البداية</th>
+                    <th>تاريخ النهاية</th>
+                    <th>الكلية</th>
+                    <th>المدرب</th>
+                    <th>العميد</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 
-      // عرض رسالة "جاري المعالجة" وتعطيل الزر
-      outputDiv.innerHTML = '<span class="status-item">جاري معالجة طلبك... قد يستغرق الأمر بعض الوقت حسب عدد المتدربين والملفات.</span>';
-      submitBtn.disabled = true; 
+    <div id="uploadTab" class="tab-content">
+        <h2>اختر الدورة أولاً</h2>
+        <label for="courseSelect">اختر الدورة التي تريد إدارة متدربيها:</label>
+        <select id="courseSelect" onchange="resetParticipantsInput()">
+            <option value="">-- اختر الدورة --</option>
+        </select>
 
-      const reader = new FileReader(); // لإنشاء قارئ ملفات
-      reader.onload = function(event) {
-        const csvData = event.target.result; // الحصول على محتوى ملف CSV كنص
-        
-        // استدعاء دالة Apps Script على الخادم (processRecipientsAndSend)
-        google.script.run
-          .withSuccessHandler(function(results) {
-            // يتم تنفيذ هذا عند نجاح عملية الخادم
-            let outputHtml = '<h3>نتائج الإرسال:</h3>';
-            if (results.length === 0) {
-              outputHtml += '<span class="status-item">لم يتم العثور على متدربين في ملف CSV أو حدث خطأ.</span>';
-            } else {
-              results.forEach(item => {
-                const statusClass = item.status.includes('✅') ? 'success' : 'fail';
-                outputHtml += `<div class="status-item ${statusClass}">${item.name} (${item.email}): ${item.status}</div>`;
-              });
-            }
-            outputDiv.innerHTML = outputHtml; // عرض النتائج
-            submitBtn.disabled = false; // إعادة تفعيل الزر
-          })
-          .withFailureHandler(function(error) {
-            // يتم تنفيذ هذا عند حدوث خطأ في عملية الخادم
-            outputDiv.innerHTML = `<span class="status-item fail">حدث خطأ: ${error.message}</span>`;
-            submitBtn.disabled = false; // إعادة تفعيل الزر حتى في حالة الخطأ
-          })
-          .processRecipientsAndSend(csvData); // تمرير محتوى CSV إلى دالة Apps Script
-      };
-      reader.readAsText(csvFile); // قراءة ملف CSV كنص (باستخدام UTF-8)
+        <hr style="margin: 30px 0; border: 0; border-top: 1px solid #eee;">
+        <h2>1. رفع ملف أسماء المشتركين (CSV)</h2>
+        <p>يرجى التأكد أن العمود الأول هو الاسم والعمود الثاني هو البريد الإلكتروني.</p>
+        <input type="file" id="csvFile" accept=".csv" /> <div class="manual-entry-section">
+            <h3>أو 2. إضافة متدرب يدويًا</h3>
+            <input type="text" id="manualParticipantName" placeholder="اسم المتدرب" />
+            <input type="email" id="manualParticipantEmail" placeholder="البريد الإلكتروني (اختياري)" />
+            <button id="addParticipantBtn" onclick="addManualParticipant()">إضافة المتدرب</button>
+        </div>
+
+        <hr style="margin: 30px 0; border: 0; border-top: 1px solid #eee;">
+        <h2>قائمة المتدربين للدورة المختارة</h2>
+        <table id="participantListTable">
+            <thead>
+                <tr>
+                    <th>الاسم</th>
+                    <th>البريد الإلكتروني</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody id="participantListBody">
+            </tbody>
+        </table>
+        <button class="submit" onclick="saveParticipantsAndGenerateCerts()" style="margin-top:20px;">حفظ المتدربين وعرض الشهادات</button>
+    </div>
+
+    <div id="exportTab" class="tab-content">
+        <h2>عرض وتصدير الشهادات</h2>
+        <p id="exportTabMessage" style="text-align: center; color: #666;">يرجى اختيار دورة وتجهيز المتدربين في تبويب "إدارة المتدربين" لعرض الشهادات هنا.</p>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button class="send-all-certificates-link-btn" id="sendAllCertificatesBtn" onclick="sendCertificatesViaAppsScript()">إرسال الشهادات عبر البريد الإلكتروني</button>
+            <div id="sendResults" style="margin-top: 15px; text-align: left; padding: 10px; background-color: #f0f0f0; border-radius: 5px; display: none;"></div>
+        </div>
+        <div class="certificates" id="certContainer"></div>
+    </div>
+
+<script>
+    let courses = [];
+    let participantsData = [];
+    let selectedCourseIndex = null;
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        loadData();
+        populateCourseSelect();
+        renderCoursesTable();
     });
-  </script>
+
+    function showTab(tabId, event) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+
+        document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+        // تحقق إذا كان event موجوداً قبل الوصول إلى currentTarget
+        if (event && event.currentTarget) {
+            event.currentTarget.classList.add('active');
+        } else {
+            // هذا يحدث إذا تم استدعاء showTab برمجياً بدون event (مثل عند التحميل الأولي)
+            document.querySelector(`.tabs button[onclick*="${tabId}"]`).classList.add('active');
+        }
+        
+
+        if (tabId === 'uploadTab') {
+            resetParticipantsInput();
+        } else if (tabId === 'exportTab') {
+            if (selectedCourseIndex !== null && participantsData.length > 0) {
+                document.getElementById('exportTabMessage').style.display = 'none';
+                renderCertificates();
+            } else {
+                document.getElementById('exportTabMessage').style.display = 'block';
+                document.getElementById('certContainer').innerHTML = '';
+            }
+        }
+    }
+
+    function saveCourse() {
+        const name = document.getElementById('courseName').value.trim();
+        const collegeName = document.getElementById('collegeName').value.trim();
+        const workshopTitle = document.getElementById('workshopTitle').value.trim();
+        const workshopDuration = document.getElementById('workshopDuration').value.trim(); // This is now optional
+        const start = document.getElementById('startDate').value;
+        const end = document.getElementById('endDate').value;
+        const instructorName = document.getElementById('instructorName').value.trim();
+        const instructorTitle = document.getElementById('instructorTitle').value.trim();
+        const deanName = document.getElementById('deanName').value.trim();
+        const deanTitle = document.getElementById('deanTitle').value.trim();
+
+        if (!name || !collegeName || !workshopTitle || !start || !end || !instructorName || !instructorTitle || !deanName || !deanTitle) {
+            alert('يرجى ملء جميع الحقول المطلوبة لبيانات الدورة بالكامل.');
+            return;
+        }
+
+        const newCourseData = {
+            name,
+            collegeName,
+            workshopTitle,
+            workshopDuration, // Still save it even if empty
+            start,
+            end,
+            instructorName,
+            instructorTitle,
+            deanName,
+            deanTitle
+        };
+
+        const existsIndex = courses.findIndex(c => c.name === name);
+        if (existsIndex >= 0) {
+            courses[existsIndex] = newCourseData;
+            alert('تم تعديل بيانات الدورة بنجاح!');
+        } else {
+            courses.push(newCourseData);
+            alert('تم حفظ بيانات الدورة بنجاح!');
+        }
+        saveData();
+        renderCoursesTable();
+        populateCourseSelect();
+        clearCourseInputs();
+    }
+
+    function renderCoursesTable() {
+        const tbody = document.querySelector('#coursesTable tbody');
+        tbody.innerHTML = '';
+        if (courses.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7">لا توجد دورات محفوظة حالياً.</td></tr>';
+            return;
+        }
+        courses.forEach((course, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${course.name}</td>
+                <td>${formatDate(course.start)}</td>
+                <td>${formatDate(course.end)}</td>
+                <td>${course.collegeName}</td>
+                <td>${course.instructorName}</td>
+                <td>${course.deanName}</td>
+                <td>
+                    <button class="edit-btn" onclick="editCourse(${index})">تعديل</button>
+                    <button class="delete-btn" onclick="deleteCourse(${index})">حذف</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function editCourse(index) {
+        const course = courses[index];
+        document.getElementById('courseName').value = course.name;
+        document.getElementById('collegeName').value = course.collegeName;
+        document.getElementById('workshopTitle').value = course.workshopTitle;
+        document.getElementById('workshopDuration').value = course.workshopDuration;
+        document.getElementById('startDate').value = course.start;
+        document.getElementById('endDate').value = course.end;
+        document.getElementById('instructorName').value = course.instructorName;
+        document.getElementById('instructorTitle').value = course.instructorTitle;
+        document.getElementById('deanName').value = course.deanName;
+        document.getElementById('deanTitle').value = course.deanTitle;
+    }
+
+    function deleteCourse(index) {
+        if (confirm('هل أنت متأكد من حذف هذه الدورة؟ سيتم حذف جميع المتدربين المرتبطين بها.')) {
+            if (selectedCourseIndex == index) {
+                participantsData = [];
+                renderParticipantListTable();
+            }
+            localStorage.removeItem(`course_${index}_participants`);
+            courses.splice(index, 1);
+            saveData();
+            renderCoursesTable();
+            populateCourseSelect();
+            clearCourseInputs();
+            alert('تم حذف الدورة بنجاح!');
+        }
+    }
+
+    function clearCourseInputs() {
+        document.getElementById('courseName').value = '';
+        document.getElementById('collegeName').value = '';
+        document.getElementById('workshopTitle').value = '';
+        document.getElementById('workshopDuration').value = '';
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+        document.getElementById('instructorName').value = '';
+        document.getElementById('instructorTitle').value = '';
+        document.getElementById('deanName').value = '';
+        document.getElementById('deanTitle').value = '';
+    }
+
+    function populateCourseSelect() {
+        const select = document.getElementById('courseSelect');
+        const currentSelectedValue = select.value;
+        select.innerHTML = '<option value="">-- اختر الدورة --</option>';
+        courses.forEach((course, idx) => {
+            const option = document.createElement('option');
+            option.value = idx;
+            option.textContent = course.name;
+            select.appendChild(option);
+        });
+        if (currentSelectedValue !== null && select.querySelector(`option[value="${currentSelectedValue}"]`)) {
+            select.value = currentSelectedValue;
+        }
+    }
+
+    function resetParticipantsInput() {
+        document.getElementById('csvFile').value = ''; // تم تغيير excelFile إلى csvFile
+        document.getElementById('manualParticipantName').value = '';
+        document.getElementById('manualParticipantEmail').value = '';
+        participantsData = [];
+        renderParticipantListTable();
+        selectedCourseIndex = document.getElementById('courseSelect').value;
+        if (selectedCourseIndex !== '') {
+            const courseKey = `course_${selectedCourseIndex}_participants`;
+            const savedParticipants = localStorage.getItem(courseKey);
+            if (savedParticipants) {
+                participantsData = JSON.parse(savedParticipants);
+                renderParticipantListTable();
+            }
+        }
+    }
+
+    // تم تعديل الاستماع لحدث التغيير على ملف CSV بدلاً من Excel
+    document.getElementById('csvFile').addEventListener('change', function(event){
+        const file = event.target.files[0];
+        if (!file) return;
+
+        selectedCourseIndex = document.getElementById('courseSelect').value;
+
+        if (selectedCourseIndex === '') {
+            alert('يرجى اختيار الدورة التي تريد إضافة متدربين لها أولاً.');
+            this.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e){
+            // قراءة ملف CSV كنص مباشر
+            const csvText = e.target.result;
+            const lines = csvText.trim().split('\n');
+            
+            participantsData = [];
+            // يمكن بدء من السطر 0 إذا لم يكن هناك رأس (header) أو 1 لتخطيه
+            for(let i = 0; i < lines.length; i++) { 
+                const row = lines[i];
+                if (row.trim() === '') continue; // تخطي الأسطر الفارغة
+                
+                const parts = row.split(',').map(s => s.trim());
+                if(parts.length >= 2) {
+                    const name = parts[0];
+                    const email = parts[1];
+                    if (name && email && validateEmail(email)) {
+                        participantsData.push({ name: name, email: email });
+                    } else {
+                        console.warn(`تجاهل سطر CSV غير صالح: ${row}`);
+                    }
+                }
+            }
+            alert(`تم تحميل ${participantsData.length} اسماً من ملف CSV.`);
+            renderParticipantListTable();
+        }
+        // قراءة الملف كنص UTF-8
+        reader.readAsText(file);
+    });
+
+    function addManualParticipant() {
+        selectedCourseIndex = document.getElementById('courseSelect').value;
+        if (selectedCourseIndex === '') {
+            alert('يرجى اختيار الدورة التي تريد إضافة متدرب لها أولاً.');
+            return;
+        }
+
+        const name = document.getElementById('manualParticipantName').value.trim();
+        const email = document.getElementById('manualParticipantEmail').value.trim();
+
+        if (!name) {
+            alert('يرجى إدخال اسم المتدرب.');
+            return;
+        }
+        if (email && !validateEmail(email)) {
+            alert('البريد الإلكتروني المدخل غير صالح.');
+            return;
+        }
+
+        participantsData.push({ name: name, email: email });
+        document.getElementById('manualParticipantName').value = '';
+        document.getElementById('manualParticipantEmail').value = '';
+        renderParticipantListTable();
+        alert(`تمت إضافة المتدرب "${name}" بنجاح.`);
+    }
+
+    function renderParticipantListTable() {
+        const tbody = document.getElementById('participantListBody');
+        tbody.innerHTML = '';
+        if (participantsData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3">لا توجد متدربون مضافون لهذه الدورة حتى الآن.</td></tr>';
+            document.getElementById('participantListTable').classList.remove('active');
+            return;
+        }
+        document.getElementById('participantListTable').classList.add('active');
+
+        participantsData.forEach((participant, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${participant.name}</td>
+                <td>${participant.email || 'لا يوجد'}</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteParticipant(${index})">حذف</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function saveParticipantsAndGenerateCerts() {
+        if (selectedCourseIndex === null || selectedCourseIndex === '') {
+            alert('يرجى اختيار الدورة أولاً.');
+            return;
+        }
+        if (participantsData.length === 0) {
+            alert('لا توجد أسماء متدربين. يرجى إضافة أسماء يدوياً أو عن طريق ملف Excel.');
+            return;
+        }
+
+        localStorage.setItem(`course_${selectedCourseIndex}_participants`, JSON.stringify(participantsData));
+        alert('تم حفظ قائمة المتدربين بنجاح!');
+        // تلقائياً انتقل إلى تبويب "عرض وتصدير الشهادات" بعد الحفظ
+        showTab('exportTab'); // استخدام showTab مباشرة بدلاً من click()
+    }
+
+    function deleteParticipant(index) {
+        if (confirm(`هل أنت متأكد من حذف المتدرب "${participantsData[index].name}"؟`)) {
+            participantsData.splice(index, 1);
+            localStorage.setItem(`course_${selectedCourseIndex}_participants`, JSON.stringify(participantsData));
+            renderParticipantListTable();
+            // إعادة عرض الشهادات إذا كنا على تبويب التصدير
+            if (document.getElementById('exportTab').classList.contains('active')) {
+                renderCertificates();
+            }
+            alert('تم حذف المتدرب بنجاح.');
+        }
+    }
+
+    function renderCertificates() {
+        const container = document.getElementById('certContainer');
+        container.innerHTML = '';
+
+        if (selectedCourseIndex === null || selectedCourseIndex === '' || !courses[selectedCourseIndex]) {
+            document.getElementById('exportTabMessage').style.display = 'block';
+            return;
+        }
+        document.getElementById('exportTabMessage').style.display = 'none';
+
+        const course = courses[selectedCourseIndex];
+        if (!course || participantsData.length === 0) {
+            document.getElementById('exportTabMessage').style.display = 'block';
+            document.getElementById('exportTabMessage').textContent = 'لا توجد شهادات لعرضها. يرجى التأكد من اختيار الدورة وإضافة المتدربين.';
+            return;
+        }
+        
+        // عرض الشهادات فقط للعرض وليس للإرسال من هنا
+        participantsData.forEach((participant, index) => {
+            const div = document.createElement('div');
+            const certificateContent = document.createElement('div');
+            certificateContent.className = 'certificate';
+
+            // All static text and design is in the background image
+            // Only dynamic text elements are created and positioned absolutely
+            certificateContent.innerHTML = `
+                <span class="dynamic-text participant-name">${participant.name}</span>
+
+                <div class="workshop-details-section">
+                    <span class="dynamic-text intro-text">
+                        قد حضرت ورشة تدريبية
+                        ${course.workshopDuration ? '<span class="duration-dynamic">لمدة ' + course.workshopDuration + '</span>' : ''}
+                        <span class="title-intro-text">بعنوان</span>
+                    </span>
+                    <span class="dynamic-text workshop-title-dynamic">${course.workshopTitle}</span>
+                    <span class="dynamic-text dates-dynamic">من يوم ${formatDateCustom(course.start)} وحتى يوم ${formatDateCustom(course.end)}</span>
+                </div>
+
+                <div class="dynamic-text instructor-block">
+                    <p class="name">أ. ${course.instructorName}</p>
+                    <p>${course.instructorTitle}</p>
+                </div>
+
+                <div class="dynamic-text dean-block">
+                    <p class="name">د. ${course.deanName}</p>
+                    <p>${course.deanTitle}</p>
+                </div>
+            `;
+            div.appendChild(certificateContent);
+
+            // أزرار الإجراءات الفردية (إرسال وطباعة) سيتم إزالتها من هذا العرض
+            // لأن الإرسال سيتم عبر Apps Script للجميع.
+            // يمكنك إضافة زر طباعة فردي هنا إذا كنت ترغب في السماح بالطباعة من المتصفح
+            // const actionsDiv = document.createElement('div');
+            // actionsDiv.className = 'certificate-actions';
+            // actionsDiv.innerHTML = `
+            //    <button class="print-btn" onclick="printCertificate(${index})">طباعة الشهادة</button>
+            // `;
+            // div.appendChild(actionsDiv);
+
+            container.appendChild(div);
+        });
+    }
+
+    // *** هذه الدالة ستُستبدل بوظيفة تستدعي Apps Script ***
+    // async function sendCertificateEmail(index) {
+    //     // ... الكود الأصلي لـ EmailJS هنا ...
+    // }
+
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(String(email).toLowerCase());
+    }
+
+    // *** هذه الدالة ستُستبدل بوظيفة Apps Script ***
+    // function printCertificate(index) {
+    //     // ... الكود الأصلي للطباعة هنا ...
+    // }
+
+    // *** هذه الدالة ستُستبدل بوظيفة Apps Script ***
+    // async function exportCertificatesPdfZip() {
+    //     // ... الكود الأصلي لتوليد ZIP هنا ...
+    // }
+
+    // *** الدالة الجديدة لاستدعاء Google Apps Script لإرسال الشهادات ***
+    async function sendCertificatesViaAppsScript() {
+        if (participantsData.length === 0 || selectedCourseIndex === null || !courses[selectedCourseIndex]) {
+            alert('لا توجد متدربون أو دورة مختارة لإرسال الشهادات.');
+            return;
+        }
+
+        const sendBtn = document.getElementById('sendAllCertificatesBtn');
+        const sendResultsDiv = document.getElementById('sendResults');
+        sendBtn.disabled = true;
+        sendBtn.textContent = 'جاري الإرسال... الرجاء الانتظار';
+        sendResultsDiv.style.display = 'block';
+        sendResultsDiv.innerHTML = '<p style="text-align: center; color: #007bff;">جاري إرسال الطلب إلى الخادم...</p>';
+
+        const recipientsForAppsScript = participantsData.map(p => `${p.name},${p.email}`).join('\n');
+
+        try {
+            // استدعاء دالة processRecipientsAndSend في Code.gs
+            // مع تمرير بيانات المتدربين كـ CSV نصي
+            const results = await google.script.run
+                .withSuccessHandler(function(response) {
+                    let outputHtml = '<h3>نتائج إرسال الشهادات:</h3>';
+                    response.forEach(item => {
+                        const statusClass = item.status.includes('✅') ? 'success' : 'fail';
+                        outputHtml += `<div class="status-item ${statusClass}">${item.name} (${item.email}): ${item.status}</div>`;
+                    });
+                    sendResultsDiv.innerHTML = outputHtml;
+                    sendBtn.disabled = false;
+                    sendBtn.textContent = 'إرسال الشهادات عبر البريد الإلكتروني';
+                    alert('تم الانتهاء من محاولة إرسال الشهادات. تحقق من النتائج أدناه.');
+                })
+                .withFailureHandler(function(error) {
+                    sendResultsDiv.innerHTML = `<div class="status-item fail">حدث خطأ في الاتصال بالخادم: ${error.message}</div>`;
+                    sendBtn.disabled = false;
+                    sendBtn.textContent = 'إرسال الشهادات عبر البريد الإلكتروني';
+                    alert('فشل إرسال الشهادات. يرجى مراجعة سجلات الأخطاء والتحقق من الصلاحيات.');
+                    console.error("Apps Script Error:", error);
+                })
+                .processRecipientsAndSend(recipientsForAppsScript); // تمرير البيانات كـ CSV
+        } catch (error) {
+            sendResultsDiv.innerHTML = `<div class="status-item fail">خطأ غير متوقع في JavaScript: ${error.message}</div>`;
+            sendBtn.disabled = false;
+            sendBtn.textContent = 'إرسال الشهادات عبر البريد الإلكتروني';
+            console.error("Client-side error:", error);
+        }
+    }
+
+
+    function saveData() {
+        localStorage.setItem('courses', JSON.stringify(courses));
+    }
+
+    function loadData() {
+        const savedCourses = localStorage.getItem('courses');
+        if (savedCourses) {
+            courses = JSON.parse(savedCourses);
+        }
+    }
+
+    function formatDateCustom(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString + 'T00:00:00'); // Add T00:00:00 to avoid timezone issues
+        const optionsDayOfWeek = { weekday: 'long' };
+        const optionsDate = { day: 'numeric', month: 'long', year: 'numeric' };
+
+        const dayOfWeek = date.toLocaleDateString('ar-EG', optionsDayOfWeek);
+        const formattedDate = date.toLocaleDateString('ar-EG', optionsDate);
+
+        return `${dayOfWeek} الموافق ${formattedDate}`;
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        try {
+            return new Date(dateString + 'T00:00:00').toLocaleDateString('ar-EG', options);
+        } catch (e) {
+            return dateString;
+        }
+    }
+</script>
 </body>
 </html>
