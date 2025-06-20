@@ -136,7 +136,9 @@
             height: 650px; /* Adjusted height for the template image */
             border: none;
             background-color: transparent; /* Make background transparent to show image */
-            background-image: url('لقطة الشاشة 2025-06-20 215619.jpg'); /* !!! PATH TO YOUR TEMPLATE IMAGE !!! */
+            /* !!! ابدأ هنا بتعديل Base64 للصورة !!! */
+            background-image: url('data:image/jpeg;base64,PASTE_YOUR_BASE64_IMAGE_DATA_HERE'); 
+            /* !!! انتهى التعديل هنا !!! */
             background-size: 100% 100%; /* Cover the entire area */
             background-repeat: no-repeat;
             position: relative; /* Crucial for absolute positioning of dynamic text */
@@ -160,8 +162,9 @@
             left: 50%;
             transform: translateX(-50%);
             font-size: 1.8em;
-            width: 600px;
             color: rgb(6, 112, 102);
+            width: 600px; /* Added width for better text wrapping control */
+            white-space: normal; /* Allow name to wrap if it's long */
         }
         .workshop-details-section {
             position: absolute;
@@ -374,21 +377,6 @@
             background-color: #17a77d;
             transform: translateY(-1px);
         }
-        /* Responsive adjustments for course input fields */
-        #courseTab input[type="text"],
-        #courseTab input[type="date"] {
-            width: calc(50% - 15px); /* Two columns */
-            margin-left: 10px;
-            display: inline-block;
-        }
-        #courseTab input[type="text"]:nth-child(even),
-        #courseTab input[type="date"]:nth-child(even) {
-            margin-right: 10px;
-            margin-left: 0;
-        }
-        #courseTab input[type="date"]:first-of-type {
-            margin-left: 10px;
-        }
         /* Styles for email results */
         #emailResults {
             margin-top: 20px;
@@ -460,7 +448,9 @@
                 page-break-after: always; /* Ensure each certificate is on a new page */
                 margin: 0 auto;
                 /* Ensure background image is printed */
-                background-image: url('لقطة الشاشة 2025-06-20 215619.jpg') !important; /* !!! PATH TO YOUR TEMPLATE IMAGE !!! */
+                /* !!! ابدأ هنا بتعديل Base64 للصورة في ميديا الطباعة !!! */
+                background-image: url('data:image/jpeg;base64,PASTE_YOUR_BASE64_IMAGE_DATA_HERE') !important; 
+                /* !!! انتهى التعديل هنا !!! */
                 background-size: 100% 100% !important;
                 background-repeat: no-repeat !important;
                 position: relative;
@@ -1066,7 +1056,9 @@
                     height: 19cm; /* A4 landscape height for print */
                     border: none;
                     background-color: transparent;
-                    background-image: url('لقطة الشاشة 2025-06-20 215619.jpg') !important; /* !!! PATH TO YOUR TEMPLATE IMAGE !!! */
+                    /* !!! ابدأ هنا بتعديل Base64 للصورة في ميديا الطباعة !!! */
+                    background-image: url('data:image/jpeg;base64,PASTE_YOUR_BASE64_IMAGE_DATA_HERE') !important; 
+                    /* !!! انتهى التعديل هنا !!! */
                     background-size: 100% 100% !important;
                     background-repeat: no-repeat !important;
                     position: relative;
@@ -1267,7 +1259,7 @@
 
     // *** الدالة الجديدة لإرسال الشهادات عبر البريد الإلكتروني ***
     function sendAllCertificatesByEmail() {
-        if (selectedCourseIndex === null || selectedCourseIndex === '' || !courses[selectedCourseIndex]) {
+        if (selectedCourseIndex === null || selectedCourseIndex === '') {
             alert('يرجى اختيار الدورة أولاً.');
             return;
         }
