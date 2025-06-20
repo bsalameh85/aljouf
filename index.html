@@ -4,10 +4,12 @@
     <meta charset="UTF-8" />
     <title>نظام إصدار الشهادات</title>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
-        /* CSS الخاص بك بالكامل كما هو، مع بعض التعديلات البسيطة في ألوان الأزرار إذا لزم الأمر */
-        /* @font-face {            font-family: 'AmiriQuran';            src: url('fonts/AmiriQuran-Regular.woff2') format('woff2');            font-weight: normal;            font-style: normal;        }        */ /* uncomment if you have AmiriQuran font file */
         body {
             font-family: 'Segoe UI', 'AmiriQuran', Tahoma, Geneva, Verdana, sans-serif;
             direction: rtl;
@@ -253,10 +255,20 @@
             border-radius: 6px;
             font-size: 0.95em;
         }
-        /* .certificate-actions .send-email-btn { background-color: #ffc107; color: #212529; } */
-        /* .certificate-actions .send-email-btn:hover { background-color: #e0a800; } */
-        /* .certificate-actions .print-btn { background-color: #17a2b8; color: white; } */
-        /* .certificate-actions .print-btn:hover { background-color: #138496; } */
+        .certificate-actions .send-email-btn {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .certificate-actions .send-email-btn:hover {
+            background-color: #e0a800;
+        }
+        .certificate-actions .print-btn {
+            background-color: #17a2b8;
+            color: white;
+        }
+        .certificate-actions .print-btn:hover {
+            background-color: #138496;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -578,9 +590,7 @@
         </select>
 
         <hr style="margin: 30px 0; border: 0; border-top: 1px solid #eee;">
-        <h2>1. رفع ملف أسماء المشتركين (CSV)</h2>
-        <p>يرجى التأكد أن العمود الأول هو الاسم والعمود الثاني هو البريد الإلكتروني.</p>
-        <input type="file" id="csvFile" accept=".csv" /> <div class="manual-entry-section">
+        <h2>1. رفع ملف أسماء المشتركين (Excel / CSV)</h2>        <p>يرجى التأكد أن العمود الأول هو الاسم والعمود الثاني هو البريد الإلكتروني.</p>        <input type="file" id="excelFile" accept=".xlsx, .csv" /> <div class="manual-entry-section">
             <h3>أو 2. إضافة متدرب يدويًا</h3>
             <input type="text" id="manualParticipantName" placeholder="اسم المتدرب" />
             <input type="email" id="manualParticipantEmail" placeholder="البريد الإلكتروني (اختياري)" />
@@ -607,9 +617,9 @@
         <h2>عرض وتصدير الشهادات</h2>
         <p id="exportTabMessage" style="text-align: center; color: #666;">يرجى اختيار دورة وتجهيز المتدربين في تبويب "إدارة المتدربين" لعرض الشهادات هنا.</p>
         <div style="text-align: center; margin-bottom: 20px;">
-            <button class="send-all-certificates-link-btn" id="sendAllCertificatesBtn" onclick="sendCertificatesViaAppsScript()">إرسال الشهادات عبر البريد الإلكتروني</button>
-            <div id="sendResults" style="margin-top: 15px; text-align: left; padding: 10px; background-color: #f0f0f0; border-radius: 5px; display: none;"></div>
-        </div>
+            <button class="export-btn" onclick="exportCertificatesPdfZip()">تصدير جميع الشهادات كـ PDF (ملف مضغوط ZIP)</button>
+            <button class="send-all-certificates-link-btn" id="sendAllCertificatesBtn" onclick="redirectToCertificatesLink()">إرسال الشهادات عبر البريد الإلكتروني (عبر Google Drive)</button>
+            </div>
         <div class="certificates" id="certContainer"></div>
     </div>
 
@@ -629,7 +639,6 @@
         document.getElementById(tabId).classList.add('active');
 
         document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-        // تحقق إذا كان event موجوداً قبل الوصول إلى currentTarget
         if (event && event.currentTarget) {
             event.currentTarget.classList.add('active');
         } else {
@@ -637,7 +646,6 @@
             document.querySelector(`.tabs button[onclick*="${tabId}"]`).classList.add('active');
         }
         
-
         if (tabId === 'uploadTab') {
             resetParticipantsInput();
         } else if (tabId === 'exportTab') {
@@ -655,7 +663,7 @@
         const name = document.getElementById('courseName').value.trim();
         const collegeName = document.getElementById('collegeName').value.trim();
         const workshopTitle = document.getElementById('workshopTitle').value.trim();
-        const workshopDuration = document.getElementById('workshopDuration').value.trim(); // This is now optional
+        const workshopDuration = document.getElementById('workshopDuration').value.trim();
         const start = document.getElementById('startDate').value;
         const end = document.getElementById('endDate').value;
         const instructorName = document.getElementById('instructorName').value.trim();
@@ -672,7 +680,7 @@
             name,
             collegeName,
             workshopTitle,
-            workshopDuration, // Still save it even if empty
+            workshopDuration,
             start,
             end,
             instructorName,
@@ -779,7 +787,7 @@
     }
 
     function resetParticipantsInput() {
-        document.getElementById('csvFile').value = ''; // تم تغيير excelFile إلى csvFile
+        document.getElementById('excelFile').value = ''; // تم الاحتفاظ به لـ Excel/CSV
         document.getElementById('manualParticipantName').value = '';
         document.getElementById('manualParticipantEmail').value = '';
         participantsData = [];
@@ -795,8 +803,7 @@
         }
     }
 
-    // تم تعديل الاستماع لحدث التغيير على ملف CSV بدلاً من Excel
-    document.getElementById('csvFile').addEventListener('change', function(event){
+    document.getElementById('excelFile').addEventListener('change', function(event){
         const file = event.target.files[0];
         if (!file) return;
 
@@ -810,32 +817,38 @@
 
         const reader = new FileReader();
         reader.onload = function(e){
-            // قراءة ملف CSV كنص مباشر
-            const csvText = e.target.result;
-            const lines = csvText.trim().split('\n');
-            
+            const data = new Uint8Array(e.target.result);
+            // تحديد نوع الملف (Excel أو CSV) بناءً على الامتداد
+            let workbook;
+            if (file.name.endsWith('.xlsx')) {
+                workbook = XLSX.read(data, {type:'array'});
+            } else if (file.name.endsWith('.csv')) {
+                workbook = XLSX.read(e.target.result, {type:'string'}); // قراءة CSV كنص
+            } else {
+                alert('صيغة ملف غير مدعومة. يرجى رفع ملف .xlsx أو .csv');
+                return;
+            }
+
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const json = XLSX.utils.sheet_to_json(sheet, {header:1});
+
             participantsData = [];
-            // يمكن بدء من السطر 0 إذا لم يكن هناك رأس (header) أو 1 لتخطيه
-            for(let i = 0; i < lines.length; i++) { 
-                const row = lines[i];
-                if (row.trim() === '') continue; // تخطي الأسطر الفارغة
-                
-                const parts = row.split(',').map(s => s.trim());
-                if(parts.length >= 2) {
-                    const name = parts[0];
-                    const email = parts[1];
-                    if (name && email && validateEmail(email)) {
-                        participantsData.push({ name: name, email: email });
-                    } else {
-                        console.warn(`تجاهل سطر CSV غير صالح: ${row}`);
-                    }
+            for(let i=1; i<json.length; i++) { // البدء من 1 لتخطي صف الرأس إن وجد
+                const row = json[i];
+                if(row.length > 0 && row[0]) {
+                    participantsData.push({ name: String(row[0]).trim(), email: row[1] ? String(row[1]).trim() : '' });
                 }
             }
-            alert(`تم تحميل ${participantsData.length} اسماً من ملف CSV.`);
+            alert(`تم تحميل ${participantsData.length} اسماً من ملف ${file.name.endsWith('.xlsx') ? 'Excel' : 'CSV'}.`);
             renderParticipantListTable();
         }
-        // قراءة الملف كنص UTF-8
-        reader.readAsText(file);
+        // قراءة الملف كـ ArrayBuffer لـ Excel، أو نص لـ CSV
+        if (file.name.endsWith('.xlsx')) {
+            reader.readAsArrayBuffer(file);
+        } else if (file.name.endsWith('.csv')) {
+            reader.readAsText(file);
+        }
     });
 
     function addManualParticipant() {
@@ -893,14 +906,13 @@
             return;
         }
         if (participantsData.length === 0) {
-            alert('لا توجد أسماء متدربين. يرجى إضافة أسماء يدوياً أو عن طريق ملف Excel.');
+            alert('لا توجد أسماء متدربين. يرجى إضافة أسماء يدوياً أو عن طريق ملف Excel/CSV.');
             return;
         }
 
         localStorage.setItem(`course_${selectedCourseIndex}_participants`, JSON.stringify(participantsData));
         alert('تم حفظ قائمة المتدربين بنجاح!');
-        // تلقائياً انتقل إلى تبويب "عرض وتصدير الشهادات" بعد الحفظ
-        showTab('exportTab'); // استخدام showTab مباشرة بدلاً من click()
+        showTab('exportTab');
     }
 
     function deleteParticipant(index) {
@@ -908,7 +920,6 @@
             participantsData.splice(index, 1);
             localStorage.setItem(`course_${selectedCourseIndex}_participants`, JSON.stringify(participantsData));
             renderParticipantListTable();
-            // إعادة عرض الشهادات إذا كنا على تبويب التصدير
             if (document.getElementById('exportTab').classList.contains('active')) {
                 renderCertificates();
             }
@@ -933,14 +944,11 @@
             return;
         }
         
-        // عرض الشهادات فقط للعرض وليس للإرسال من هنا
         participantsData.forEach((participant, index) => {
             const div = document.createElement('div');
             const certificateContent = document.createElement('div');
             certificateContent.className = 'certificate';
 
-            // All static text and design is in the background image
-            // Only dynamic text elements are created and positioned absolutely
             certificateContent.innerHTML = `
                 <span class="dynamic-text participant-name">${participant.name}</span>
 
@@ -966,87 +974,255 @@
             `;
             div.appendChild(certificateContent);
 
-            // أزرار الإجراءات الفردية (إرسال وطباعة) سيتم إزالتها من هذا العرض
-            // لأن الإرسال سيتم عبر Apps Script للجميع.
-            // يمكنك إضافة زر طباعة فردي هنا إذا كنت ترغب في السماح بالطباعة من المتصفح
-            // const actionsDiv = document.createElement('div');
-            // actionsDiv.className = 'certificate-actions';
-            // actionsDiv.innerHTML = `
-            //    <button class="print-btn" onclick="printCertificate(${index})">طباعة الشهادة</button>
-            // `;
-            // div.appendChild(actionsDiv);
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'certificate-actions';
+            // تمت إعادة زر الطباعة الفردي هنا
+            actionsDiv.innerHTML = `
+               <button class="print-btn" onclick="printCertificate(${index})">طباعة الشهادة</button>
+            `;
+            div.appendChild(actionsDiv);
 
             container.appendChild(div);
         });
     }
-
-    // *** هذه الدالة ستُستبدل بوظيفة تستدعي Apps Script ***
-    // async function sendCertificateEmail(index) {
-    //     // ... الكود الأصلي لـ EmailJS هنا ...
-    // }
 
     function validateEmail(email) {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(String(email).toLowerCase());
     }
 
-    // *** هذه الدالة ستُستبدل بوظيفة Apps Script ***
-    // function printCertificate(index) {
-    //     // ... الكود الأصلي للطباعة هنا ...
-    // }
-
-    // *** هذه الدالة ستُستبدل بوظيفة Apps Script ***
-    // async function exportCertificatesPdfZip() {
-    //     // ... الكود الأصلي لتوليد ZIP هنا ...
-    // }
-
-    // *** الدالة الجديدة لاستدعاء Google Apps Script لإرسال الشهادات ***
-    async function sendCertificatesViaAppsScript() {
-        if (participantsData.length === 0 || selectedCourseIndex === null || !courses[selectedCourseIndex]) {
-            alert('لا توجد متدربون أو دورة مختارة لإرسال الشهادات.');
-            return;
-        }
-
-        const sendBtn = document.getElementById('sendAllCertificatesBtn');
-        const sendResultsDiv = document.getElementById('sendResults');
-        sendBtn.disabled = true;
-        sendBtn.textContent = 'جاري الإرسال... الرجاء الانتظار';
-        sendResultsDiv.style.display = 'block';
-        sendResultsDiv.innerHTML = '<p style="text-align: center; color: #007bff;">جاري إرسال الطلب إلى الخادم...</p>';
-
-        const recipientsForAppsScript = participantsData.map(p => `${p.name},${p.email}`).join('\n');
-
-        try {
-            // استدعاء دالة processRecipientsAndSend في Code.gs
-            // مع تمرير بيانات المتدربين كـ CSV نصي
-            const results = await google.script.run
-                .withSuccessHandler(function(response) {
-                    let outputHtml = '<h3>نتائج إرسال الشهادات:</h3>';
-                    response.forEach(item => {
-                        const statusClass = item.status.includes('✅') ? 'success' : 'fail';
-                        outputHtml += `<div class="status-item ${statusClass}">${item.name} (${item.email}): ${item.status}</div>`;
-                    });
-                    sendResultsDiv.innerHTML = outputHtml;
-                    sendBtn.disabled = false;
-                    sendBtn.textContent = 'إرسال الشهادات عبر البريد الإلكتروني';
-                    alert('تم الانتهاء من محاولة إرسال الشهادات. تحقق من النتائج أدناه.');
-                })
-                .withFailureHandler(function(error) {
-                    sendResultsDiv.innerHTML = `<div class="status-item fail">حدث خطأ في الاتصال بالخادم: ${error.message}</div>`;
-                    sendBtn.disabled = false;
-                    sendBtn.textContent = 'إرسال الشهادات عبر البريد الإلكتروني';
-                    alert('فشل إرسال الشهادات. يرجى مراجعة سجلات الأخطاء والتحقق من الصلاحيات.');
-                    console.error("Apps Script Error:", error);
-                })
-                .processRecipientsAndSend(recipientsForAppsScript); // تمرير البيانات كـ CSV
-        } catch (error) {
-            sendResultsDiv.innerHTML = `<div class="status-item fail">خطأ غير متوقع في JavaScript: ${error.message}</div>`;
-            sendBtn.disabled = false;
-            sendBtn.textContent = 'إرسال الشهادات عبر البريد الإلكتروني';
-            console.error("Client-side error:", error);
+    // تم إرجاع هذه الدالة للطباعة الفردية
+    function printCertificate(index) {
+        const certificateElement = document.querySelectorAll('.certificates .certificate')[index];
+        if (certificateElement) {
+            const printContent = certificateElement.cloneNode(true);
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>طباعة الشهادة</title>');
+            printWindow.document.write('<style>');
+            // Inline the CSS for printing to ensure it applies correctly
+            printWindow.document.write(`
+                @page { size: A4 landscape; margin: 0; }
+                body {
+                    font-family: 'Segoe UI', 'AmiriQuran', Tahoma, Geneva, Verdana, sans-serif;
+                    direction: rtl;
+                    margin: 0;
+                    padding: 0;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 100vh;
+                }
+                .certificate {
+                    width: 28cm; /* A4 landscape width for print */
+                    height: 19cm; /* A4 landscape height for print */
+                    border: none;
+                    background-color: transparent;
+                    background-image: url('لقطة الشاشة 2025-06-19 201454.jpg') !important; /* !!! PATH TO YOUR TEMPLATE IMAGE !!! */
+                    background-size: 100% 100% !important;
+                    background-repeat: no-repeat !important;
+                    position: relative;
+                    box-sizing: border-box;
+                    overflow: hidden;
+                    box-shadow: none;
+                    page-break-after: avoid;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                /* Ensure dynamic text prints correctly with exact colors */
+                .dynamic-text {
+                    position: absolute;
+                    text-align: center;
+                    color: #000 !important; /* Force black for print */
+                    font-family: 'Segoe UI', 'AmiriQuran', Tahoma, Geneva, Verdana, sans-serif;
+                    font-weight: bold;
+                    line-height: 1.2;
+                    white-space: nowrap;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                .participant-name {
+                    top: 280px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    font-size: 1.8em !important;
+                    width: 600px;
+                    color: rgb(6, 112, 102) !important;
+                }
+                .workshop-details-section {
+                    position: absolute;
+                    width: 700px;
+                    top: 340px; /* تم التعديل لتنزيله بمقدار درجتين إضافيتين */
+                    left: 50%;
+                    transform: translateX(-50%);
+                    text-align: center;
+                    line-height: 1.8 !important; /* تم التعديل لزيادة التباعد بين السطور */
+                }
+                .workshop-details-section .intro-text {
+                    position: absolute;
+                    top: 0;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    font-size: 1.3em !important;
+                    color: #000 !important;
+                    white-space: normal;
+                    width: 100%;
+                    margin-bottom: 20px !important; /* مسافة إضافية بين النص التمهيدي واسم الدورة (زيادة) */
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                .workshop-details-section .duration-dynamic {
+                    display: inline-block;
+                    font-size: 1.1em !important;
+                    color: #000 !important;
+                    margin: 0 5px;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                .workshop-details-section .title-intro-text {
+                    display: inline-block;
+                    font-size: 1.1em !important;
+                    color: #000 !important;
+                    margin: 0 5px;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                .workshop-details-section .workshop-title-dynamic {
+                    position: absolute;
+                    top: 45px; /* تم التعديل لتنزيله بمقدار درجة لأسفل */
+                    left: 50%;
+                    transform: translateX(-50%);
+                    font-size: 1.8em !important;
+                    color: rgb(6, 112, 102) !important;
+                    width: 650px;
+                    white-space: normal;
+                    margin-bottom: 25px !important; /* مسافة إضافية بين اسم الدورة وتاريخها (زيادة) */
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                .workshop-details-section .dates-dynamic {
+                    position: absolute;
+                    top: 100px; /* تم التعديل لتنزيله بمقدار درجة إضافية لأسفل */
+                    left: 50%;
+                    transform: translateX(-50%);
+                    font-size: 1.3em !important;
+                    color: #000 !important;
+                    width: 700px;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                .instructor-block {
+                    position: absolute;
+                    bottom: 40px !important; /* تم التعديل لرفعها للأعلى بمقدار درجتين */
+                    right: 170px;
+                    text-align: center;
+                    font-size: 0.9em !important;
+                    color: #000 !important;
+                    line-height: 0.8 !important;
+                }
+                .instructor-block .name {
+                    font-weight: bold;
+                    color: #000 !important;
+                }
+                .dean-block {
+                    position: absolute;
+                    bottom: 40px !important; /* تم التعديل لرفعها للأعلى بمقدار درجتين */
+                    left: 170px;
+                    text-align: center;
+                    font-size: 0.9em !important;
+                    color: #000 !important;
+                    line-height: 0.8 !important;
+                }
+                .dean-block .name {
+                    font-weight: bold;
+                    color: #000 !important;
+                }
+            `);
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(printContent.outerHTML);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        } else {
+            alert('لم يتم العثور على الشهادة للطباعة.');
         }
     }
 
+    // تم إرجاع هذه الدالة لتصدير PDF ZIP
+    async function exportCertificatesPdfZip() {
+        if (participantsData.length === 0 || selectedCourseIndex === null || !courses[selectedCourseIndex]) {
+            alert('لا توجد شهادات لتصديرها. يرجى التأكد من اختيار الدورة وإضافة المتدربين أولاً.');
+            return;
+        }
+
+        const course = courses[selectedCourseIndex];
+        if (!course) {
+            alert('بيانات الدورة غير متوفرة.');
+            return;
+        }
+
+        const zip = new JSZip();
+        const exportBtn = document.querySelector('.export-btn');
+        exportBtn.disabled = true;
+        exportBtn.textContent = 'جاري التصدير... الرجاء الانتظار';
+
+        const certElements = document.querySelectorAll('.certificates .certificate');
+        for (let i = 0; i < certElements.length; i++) {
+            const participant = participantsData[i];
+            const certElement = certElements[i];
+
+            const canvas = await html2canvas(certElement, {
+                scale: 3, // Increased scale for very high quality PDF
+                useCORS: true,
+                scrollY: -window.scrollY,
+                scrollX: -window.scrollX,
+                windowWidth: document.documentElement.offsetWidth,
+                windowHeight: document.documentElement.offsetHeight,
+                backgroundColor: null
+            });
+
+            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+                orientation: 'landscape',
+                unit: 'px',
+                format: [certElement.offsetWidth, certElement.offsetHeight]
+            });
+
+            const imgWidth = pdf.internal.pageSize.getWidth();
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+            const pdfBlob = pdf.output('blob');
+
+            const fileName = `شهادة_${participant.name}_${course.name}.pdf`;
+            zip.file(fileName, pdfBlob);
+
+            console.log(`تم إضافة شهادة ${participant.name} إلى ملف الـ ZIP.`);
+        }
+
+        zip.generateAsync({type:"blob"})
+            .then(function(content) {
+                saveAs(content, `شهادات_${course.name}.zip`);
+                alert('تم تصدير جميع الشهادات بنجاح كملف ZIP!');
+                exportBtn.disabled = false;
+                exportBtn.textContent = 'تصدير جميع الشهادات كـ PDF (ملف مضغوط ZIP)';
+            })
+            .catch(error => {
+                console.error('فشل توليد ملف ZIP:', error);
+                alert('حدث خطأ أثناء تصدير الشهادات كملف ZIP.');
+                exportBtn.disabled = false;
+                exportBtn.textContent = 'تصدير جميع الشهادات كـ PDF (ملف مضغوط ZIP)';
+            });
+    }
+
+    // تم تعديل هذه الدالة للتحويل المباشر إلى الرابط المحدد
+    function redirectToCertificatesLink() {
+        const targetUrl = "https://script.google.com/macros/s/AKfycbwKMX8QdwTSlmSuPMMUkYAlES334aBH3CCcGtB65RSm/dev";
+        window.open(targetUrl, '_blank'); // يفتح الرابط في نافذة جديدة
+        // يمكنك إضافة رسالة توضيحية للمستخدم هنا إذا أردت
+        alert('سيتم فتح صفحة Google Apps Script في نافذة جديدة لإرسال الشهادات. يرجى اتباع التعليمات هناك.');
+    }
 
     function saveData() {
         localStorage.setItem('courses', JSON.stringify(courses));
