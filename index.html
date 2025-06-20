@@ -648,7 +648,7 @@
         <p id="exportTabMessage" style="text-align: center; color: #666;">يرجى اختيار دورة وتجهيز المتدربين في تبويب "إدارة المتدربين" لعرض الشهادات هنا.</p>
         <div style="text-align: center; margin-bottom: 20px;">
             <button class="export-btn" onclick="exportCertificatesPdfZip()">تصدير جميع الشهادات كـ PDF (ملف مضغوط ZIP)</button>
-            <button class="send-all-certificates-link-btn" onclick="redirectToCertificatesLink()">إرسال الشهادات (مستقبلًا)</button>
+            <button class="send-all-certificates-link-btn" onclick="window.open('https://script.google.com/macros/s/AKfycbwKMX8QdwTSlmSuPMMUkYAlES334aBH3CCcGtB65RSm/dev', '_blank')">إرسال الشهادات (مستقبلًا)</button>
         </div>
         <div class="certificates" id="certContainer"></div>
     </div>
@@ -986,13 +986,7 @@
             `;
             div.appendChild(certificateContent);
 
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'certificate-actions';
-            actionsDiv.innerHTML = `
-                <button class="send-email-btn" onclick="sendCertificateEmail(${index})">إرسال الشهادة بالإيميل</button>
-                <button class="print-btn" onclick="printCertificate(${index})">طباعة الشهادة</button>
-            `;
-            div.appendChild(actionsDiv);
+            // تم إزالة الجزء الخاص بـ actionsDiv هنا لإلغاء الأزرار
 
             container.appendChild(div);
         });
@@ -1055,28 +1049,22 @@
         return re.test(String(email).toLowerCase());
     }
 
-    async function printCertificate(index) { // جعل الدالة async
+    // هذه الدالة لم تعد تُستخدم بعد إزالة زر الطباعة من الواجهة
+    // ولكن تم الاحتفاظ بها هنا في حال أردت تفعيلها لاحقًا
+    async function printCertificate(index) {
         const certificateElement = document.querySelectorAll('.certificates .certificate')[index];
         if (certificateElement) {
-            // إخفاء أزرار الإجراءات قبل التقاط الصورة لكي لا تظهر في الطباعة
-            const actionsDiv = certificateElement.nextElementSibling; // يفترض أن actionsDiv هو العنصر التالي للشهادة
-            if (actionsDiv && actionsDiv.classList.contains('certificate-actions')) {
-                actionsDiv.style.display = 'none';
-            }
+            // لا يوجد زر لإخفائه هنا لأننا أزلنا الأزرار من العرض
+            // لذا، لا نحتاج لجزء إخفاء/إظهار زر الطباعة
 
             // استخدام html2canvas لإنشاء صورة (canvas) للشهادة
             const canvas = await html2canvas(certificateElement, {
                 scale: 3, // مقياس عالٍ لجودة طباعة ممتازة
-                useCORS: true, // مهم جدًا لضمان تحميل الصور من نفس المصدر (عند التشغيل على خادم ويب)
-                backgroundColor: null // للحفاظ على الشفافية إذا كانت الصورة الخلفية شفافة
+                useCORS: true,
+                backgroundColor: null
             });
 
-            // إعادة إظهار أزرار الإجراءات بعد التقاط الصورة
-            if (actionsDiv && actionsDiv.classList.contains('certificate-actions')) {
-                actionsDiv.style.display = 'flex'; // أو 'block' حسب التخطيط الأصلي
-            }
-
-            const imgData = canvas.toDataURL('image/png'); // استخدام PNG لجودة أفضل في الطباعة
+            const imgData = canvas.toDataURL('image/png');
 
             const printWindow = window.open('', '_blank');
             printWindow.document.write('<html><head><title>طباعة الشهادة</title>');
@@ -1085,24 +1073,22 @@
                 @page { size: A4 landscape; margin: 0; }
                 body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
                 img {
-                    width: 100%; /* اجعل الصورة تملأ عرض النافذة */
+                    width: 100%;
                     height: auto;
                     display: block;
                     page-break-after: avoid;
                 }
             `);
             printWindow.document.write('</style></head><body>');
-            printWindow.document.write(`<img src="${imgData}" />`); // عرض الصورة الملتقطة فقط
-            printWindow.document.write('</body></html>');
+            printWindow.document.write(`<img src="${imgData}" />`);
             printWindow.document.close();
 
-            // انتظر قليلاً لضمان تحميل الصورة في النافذة الجديدة قبل الطباعة
             printWindow.onload = function() {
-                setTimeout(() => { // تأخير بسيط آخر لضمان جاهزية الطباعة
+                setTimeout(() => {
                     printWindow.focus();
                     printWindow.print();
-                    // printWindow.close(); // يمكنك إلغاء التعليق إذا كنت ترغب في إغلاق نافذة الطباعة تلقائيًا
-                }, 500); // 500 ملي ثانية قد تكون كافية، يمكن زيادتها إذا استمرت المشكلة
+                    // printWindow.close();
+                }, 500);
             };
 
         } else {
@@ -1132,11 +1118,8 @@
             const participant = participantsData[i];
             const certElement = certElements[i];
 
-            // إخفاء أزرار الإجراءات قبل التقاط الصورة لكي لا تظهر في PDF
-            const actionsDiv = certElement.nextElementSibling;
-            if (actionsDiv && actionsDiv.classList.contains('certificate-actions')) {
-                actionsDiv.style.display = 'none';
-            }
+            // لا يوجد زر لإخفائه هنا لأننا أزلنا الأزرار من العرض
+            // لذا، لا نحتاج لجزء إخفاء/إظهار زر الطباعة
 
             // لإنشاء PDF عالي الجودة، استخدم html2canvas مع مقياس أعلى
             const canvas = await html2canvas(certElement, {
@@ -1148,11 +1131,6 @@
                 windowHeight: document.documentElement.offsetHeight,
                 backgroundColor: null // التأكد من الشفافية
             });
-
-            // إعادة إظهار أزرار الإجراءات بعد التقاط الصورة
-            if (actionsDiv && actionsDiv.classList.contains('certificate-actions')) {
-                actionsDiv.style.display = 'flex'; // أو 'block'
-            }
 
             const imgData = canvas.toDataURL('image/jpeg', 1.0); // استخدام JPEG لتقليل حجم الملف
 
@@ -1191,8 +1169,10 @@
             });
     }
 
+    // هذه الدالة لم تعد تُستخدم مباشرة في الزر بعد التعديل
+    // ولكن يمكنك استخدامها إذا أردت استدعاء الرابط برمجياً
     function redirectToCertificatesLink() {
-        alert('هذه الوظيفة سيتم تطويرها لاحقاً لإرسال رابط الشهادات.');
+        window.open('https://script.google.com/macros/s/AKfycbwKMX8QdwTSlmSuPMMUkYAlES334aBH3CCcGtB65RSm/dev', '_blank');
     }
 
     function saveData() {
