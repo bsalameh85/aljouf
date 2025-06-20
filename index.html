@@ -10,6 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script type="text/javascript">
+        // تهيئة EmailJS بمفتاحك العام
         (function() {
             emailjs.init({
                 publicKey: "pyfwfXQk621NyRfEn", // تأكد من صحة هذا المفتاح
@@ -24,7 +25,7 @@
             font-weight: normal;
             font-style: normal;
         }
-        */ /* uncomment if you have AmiriQuran font file */
+        */ /* قم بإلغاء التعليق إذا كان لديك ملف خط AmiriQuran في مجلد fonts */
         body {
             font-family: 'Segoe UI', 'AmiriQuran', Tahoma, Geneva, Verdana, sans-serif;
             direction: rtl;
@@ -146,33 +147,33 @@
             gap: 30px; /* Space between certificates */
         }
 
-        /* --- Certificate Styling based on provided image TEMPLATE --- */
+        /* --- تصميم الشهادة بناءً على الصورة التي قدمتها كقالب --- */
         .certificate {
-            width: 900px; /* Adjusted width for the template image */
-            height: 650px; /* Adjusted height for the template image */
+            width: 900px; /* العرض المعدل لصورة القالب */
+            height: 650px; /* الارتفاع المعدل لصورة القالب */
             border: none;
-            background-color: transparent; /* Make background transparent to show image */
-            background-image: url('لقطة الشاشة 2025-06-19 201454.jpg'); /* !!! PATH TO YOUR TEMPLATE IMAGE !!! */
-            background-size: 100% 100%; /* Cover the entire area */
+            background-color: transparent; /* جعل الخلفية شفافة لإظهار الصورة */
+            background-image: url('لقطة الشاشة 2025-06-19 201454.jpg'); /* !!! المسار إلى صورة القالب الخاصة بك !!! */
+            background-size: 100% 100%; /* تغطية المساحة بالكامل */
             background-repeat: no-repeat;
-            position: relative; /* Crucial for absolute positioning of dynamic text */
+            position: relative; /* ضروري لتحديد المواقع المطلقة للنص الديناميكي */
             box-sizing: border-box;
-            overflow: hidden; /* Ensure content stays within borders */
-            box-shadow: 0 6px 15px rgba(0,0,0,0.1); /* Optional shadow for display */
+            overflow: hidden; /* التأكد من بقاء المحتوى ضمن الحدود */
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1); /* ظل اختياري للعرض */
         }
 
-        /* Dynamic text positioning and styling */
+        /* تحديد موضع وتنسيق النص الديناميكي */
         .dynamic-text {
             position: absolute;
             text-align: center;
-            color: #000; /* Default color for dynamic text */
-            font-family: 'Segoe UI', 'AmiriQuran', Tahoma, Geneva, Verdana, sans-serif; /* Consistent font */
-            font-weight: bold; /* Match template boldness */
-            line-height: 1.2; /* Base line-height */
-            white-space: nowrap; /* Prevent line breaks for single-line elements */
+            color: #000; /* اللون الافتراضي للنص الديناميكي */
+            font-family: 'Segoe UI', 'AmiriQuran', Tahoma, Geneva, Verdana, sans-serif; /* خط متناسق */
+            font-weight: bold; /* مطابقة جرأة القالب */
+            line-height: 1.2; /* ارتفاع سطر أساسي */
+            white-space: nowrap; /* منع فواصل الأسطر للعناصر ذات السطر الواحد */
         }
 
-        /* Specific positions for each dynamic element - adjust these values precisely */
+        /* المواقع المحددة لكل عنصر ديناميكي - قم بضبط هذه القيم بدقة */
         .participant-name {
             top: 280px;
             left: 50%;
@@ -184,7 +185,7 @@
 
         .workshop-details-section {
             position: absolute;
-            width: 700px; /* Width of the text block */
+            width: 700px; /* عرض كتلة النص */
             top: 340px; /* تم التعديل لتنزيله بمقدار درجتين إضافيتين */
             left: 50%;
             transform: translateX(-50%);
@@ -192,24 +193,24 @@
             line-height: 1.8; /* تم التعديل لزيادة التباعد بين السطور */
         }
 
-        /* New and adjusted positions for text within .workshop-details-section */
+        /* مواضع جديدة ومعدلة للنص داخل .workshop-details-section */
         .workshop-details-section .intro-text {
             position: absolute;
-            top: 0; /* Starts at the top of the section */
+            top: 0; /* يبدأ من أعلى القسم */
             left: 50%;
             transform: translateX(-50%);
             font-size: 1.3em;
             color: #000;
-            white-space: normal; /* Allow text to wrap if it's long */
-            width: 100%; /* Take full width of the section */
+            white-space: normal; /* السماح بالتفاف النص إذا كان طويلًا */
+            width: 100%; /* أخذ العرض الكامل للقسم */
             margin-bottom: 20px; /* مسافة إضافية بين النص التمهيدي واسم الدورة (زيادة) */
         }
         .workshop-details-section .duration-dynamic {
-            /* Position relative to parent workshop-details-section - adjusted logic */
-            display: inline-block; /* to flow with text */
+            /* الموضع النسبي للقسم الأب workshop-details-section - منطق معدل */
+            display: inline-block; /* ليتدفق مع النص */
             font-size: 1.1em;
             color: #000;
-            margin: 0 5px; /* Spacing around it */
+            margin: 0 5px; /* مسافة حوله */
         }
         .workshop-details-section .title-intro-text {
             display: inline-block;
@@ -218,14 +219,14 @@
             margin: 0 5px;
         }
         .workshop-details-section .workshop-title-dynamic {
-            position: absolute; /* Keep absolute for precise placement on its own line */
+            position: absolute; /* الحفاظ على absolute للموضع الدقيق في سطر خاص به */
             top: 45px; /* تم التعديل لتنزيله بمقدار درجة لأسفل */
             left: 50%;
             transform: translateX(-50%);
             font-size: 1.8em;
             color: rgb(6, 112, 102);
-            width: 650px; /* Width for the title */
-            white-space: normal; /* Allow title to wrap */
+            width: 650px; /* عرض العنوان */
+            white-space: normal; /* السماح بالتفاف العنوان */
             margin-bottom: 25px; /* مسافة إضافية بين اسم الدورة وتاريخها (زيادة) */
         }
         .workshop-details-section .dates-dynamic {
@@ -235,13 +236,13 @@
             transform: translateX(-50%);
             font-size: 1.3em;
             color: #000;
-            width: 700px; /* Width for the dates */
+            width: 700px; /* عرض التواريخ */
         }
 
         .instructor-block {
             position: absolute;
             bottom: 40px; /* تم التعديل لرفعها للأعلى بمقدار درجتين */
-            right: 170px; /* From right edge */
+            right: 170px; /* من الحافة اليمنى */
             text-align: center;
             font-size: 0.9em;
             color: #000;
@@ -253,7 +254,7 @@
         .dean-block {
             position: absolute;
             bottom: 40px; /* تم التعديل لرفعها للأعلى بمقدار درجتين */
-            left: 170px; /* From left edge */
+            left: 170px; /* من الحافة اليسرى */
             text-align: center;
             font-size: 0.9em;
             color: #000;
@@ -263,7 +264,7 @@
             font-weight: bold;
         }
 
-        /* --- End Certificate Styling --- */
+        /* --- نهاية تصميم الشهادة --- */
         .certificate-actions {
             text-align: center;
             margin-top: 15px;
@@ -345,7 +346,7 @@
             display: block;
             color: #555;
         }
-        /* Styles for manual entry section */
+        /* أنماط لقسم الإدخال اليدوي */
         .manual-entry-section {
             border: 1px dashed #007bff;
             padding: 20px;
@@ -361,7 +362,7 @@
         }
         .manual-entry-section input[type="text"],
         .manual-entry-section input[type="email"] {
-            width: calc(50% - 25px); /* Half width with gap */
+            width: calc(50% - 25px); /* نصف العرض مع فجوة */
             display: inline-block;
             margin-left: 10px;
             vertical-align: top;
@@ -374,7 +375,7 @@
             width: 100%;
             margin-top: 15px;
         }
-        /* Participant List Table within Upload Tab */
+        /* جدول قائمة المشاركين ضمن علامة تبويب "الرفع" */
         #participantListTable {
             margin-top: 30px;
             display: none;
@@ -386,7 +387,7 @@
             font-size: 0.95em;
             padding: 10px;
         }
-        /* New button style for "إرسال الشهادات" */
+        /* نمط زر جديد لـ "إرسال الشهادات" */
         button.send-all-certificates-link-btn {
             background-color: #20c997;
             color: white;
@@ -397,10 +398,10 @@
             transform: translateY(-1px);
         }
 
-        /* Responsive adjustments for course input fields */
+        /* تعديلات استجابة لحقول إدخال الدورة */
         #courseTab input[type="text"],
         #courseTab input[type="date"] {
-            width: calc(50% - 15px); /* Two columns */
+            width: calc(50% - 15px); /* عمودين */
             margin-left: 10px;
             display: inline-block;
         }
@@ -413,12 +414,13 @@
             margin-left: 10px;
         }
 
+        /* أنماط الطباعة - تطبق فقط عند الطباعة */
         @media print {
             body * {
-                visibility: hidden;
+                visibility: hidden; /* إخفاء كل شيء في body افتراضياً */
             }
             .certificates, .certificates * {
-                visibility: visible;
+                visibility: visible; /* إظهار حاوية الشهادات ومحتوياتها */
             }
             .certificates {
                 position: absolute;
@@ -427,38 +429,37 @@
                 width: 100%;
                 margin: 0;
                 padding: 0;
-                display: block;
+                display: block; /* التأكد من أن التخطيط كتلة */
             }
             .certificate {
-                width: 28cm; /* A4 landscape width */
-                height: 19cm; /* A4 landscape height */
+                width: 28cm; /* عرض A4 أفقي للطباعة */
+                height: 19cm; /* ارتفاع A4 أفقي للطباعة */
                 border: none;
                 box-shadow: none;
-                page-break-after: always; /* Ensure each certificate is on a new page */
+                page-break-after: always; /* التأكد من أن كل شهادة في صفحة جديدة */
                 margin: 0 auto;
-                /* Ensure background image is printed */
-                background-image: url('لقطة الشاشة 2025-06-19 201454.jpg') !important; /* !!! PATH TO YOUR TEMPLATE IMAGE !!! */
+                /* التأكد من طباعة صورة الخلفية */
+                background-image: url('لقطة الشاشة 2025-06-19 201454.jpg') !important; /* !!! المسار إلى صورة القالب الخاصة بك !!! */
                 background-size: 100% 100% !important;
                 background-repeat: no-repeat !important;
                 position: relative;
                 box-sizing: border-box;
                 overflow: hidden;
-                box-shadow: none;
-                page-break-after: avoid;
+                /* لتشغيل "طباعة الخلفيات" في المتصفح */
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
             .certificate:last-child {
-                page-break-after: avoid;
+                page-break-after: avoid; /* منع فاصل صفحة بعد آخر شهادة */
             }
             .certificate-actions {
-                display: none;
+                display: none; /* إخفاء أزرار الإجراءات عند الطباعة */
             }
-            /* Ensure dynamic text prints correctly with exact colors */
+            /* التأكد من طباعة النص الديناميكي بشكل صحيح بألوان دقيقة */
             .dynamic-text {
                 position: absolute;
                 text-align: center;
-                color: #000 !important; /* Force black for print */
+                color: #000 !important; /* فرض اللون الأسود للطباعة */
                 font-family: 'Segoe UI', 'AmiriQuran', Tahoma, Geneva, Verdana, sans-serif;
                 font-weight: bold;
                 line-height: 1.2;
@@ -686,7 +687,7 @@
         const name = document.getElementById('courseName').value.trim();
         const collegeName = document.getElementById('collegeName').value.trim();
         const workshopTitle = document.getElementById('workshopTitle').value.trim();
-        const workshopDuration = document.getElementById('workshopDuration').value.trim(); // This is now optional
+        const workshopDuration = document.getElementById('workshopDuration').value.trim();
         const start = document.getElementById('startDate').value;
         const end = document.getElementById('endDate').value;
         const instructorName = document.getElementById('instructorName').value.trim();
@@ -694,7 +695,6 @@
         const deanName = document.getElementById('deanName').value.trim();
         const deanTitle = document.getElementById('deanTitle').value.trim();
 
-        // Removed workshopDuration from the required fields check
         if (!name || !collegeName || !workshopTitle || !start || !end || !instructorName || !instructorTitle || !deanName || !deanTitle) {
             alert('يرجى ملء جميع الحقول المطلوبة لبيانات الدورة بالكامل.');
             return;
@@ -704,7 +704,7 @@
             name,
             collegeName,
             workshopTitle,
-            workshopDuration, // Still save it even if empty
+            workshopDuration,
             start,
             end,
             instructorName,
@@ -921,7 +921,7 @@
 
         localStorage.setItem(`course_${selectedCourseIndex}_participants`, JSON.stringify(participantsData));
         alert('تم حفظ قائمة المتدربين بنجاح!');
-        document.querySelector('.tabs button:nth-child(3)').click(); // Automatically go to export tab
+        document.querySelector('.tabs button:nth-child(3)').click(); // الانتقال تلقائيًا إلى تبويب عرض الشهادات
     }
 
     function deleteParticipant(index) {
@@ -929,7 +929,7 @@
             participantsData.splice(index, 1);
             localStorage.setItem(`course_${selectedCourseIndex}_participants`, JSON.stringify(participantsData));
             renderParticipantListTable();
-            // Re-render certificates if we are on the export tab
+            // إعادة عرض الشهادات إذا كنا في تبويب التصدير
             if (document.getElementById('exportTab').classList.contains('active')) {
                 renderCertificates();
             }
@@ -959,8 +959,8 @@
             const certificateContent = document.createElement('div');
             certificateContent.className = 'certificate';
 
-            // All static text and design is in the background image
-            // Only dynamic text elements are created and positioned absolutely
+            // كل النصوص الثابتة والتصميم موجودة في صورة الخلفية
+            // فقط عناصر النص الديناميكية يتم إنشاؤها وتحديد موقعها بشكل مطلق
             certificateContent.innerHTML = `
                 <span class="dynamic-text participant-name">${participant.name}</span>
 
@@ -1055,156 +1055,56 @@
         return re.test(String(email).toLowerCase());
     }
 
-    function printCertificate(index) {
+    async function printCertificate(index) { // جعل الدالة async
         const certificateElement = document.querySelectorAll('.certificates .certificate')[index];
         if (certificateElement) {
-            const printContent = certificateElement.cloneNode(true);
-            const printWindow = window.open('', '', 'height=600,width=800');
+            // إخفاء أزرار الإجراءات قبل التقاط الصورة لكي لا تظهر في الطباعة
+            const actionsDiv = certificateElement.nextElementSibling; // يفترض أن actionsDiv هو العنصر التالي للشهادة
+            if (actionsDiv && actionsDiv.classList.contains('certificate-actions')) {
+                actionsDiv.style.display = 'none';
+            }
+
+            // استخدام html2canvas لإنشاء صورة (canvas) للشهادة
+            const canvas = await html2canvas(certificateElement, {
+                scale: 3, // مقياس عالٍ لجودة طباعة ممتازة
+                useCORS: true, // مهم جدًا لضمان تحميل الصور من نفس المصدر (عند التشغيل على خادم ويب)
+                backgroundColor: null // للحفاظ على الشفافية إذا كانت الصورة الخلفية شفافة
+            });
+
+            // إعادة إظهار أزرار الإجراءات بعد التقاط الصورة
+            if (actionsDiv && actionsDiv.classList.contains('certificate-actions')) {
+                actionsDiv.style.display = 'flex'; // أو 'block' حسب التخطيط الأصلي
+            }
+
+            const imgData = canvas.toDataURL('image/png'); // استخدام PNG لجودة أفضل في الطباعة
+
+            const printWindow = window.open('', '_blank');
             printWindow.document.write('<html><head><title>طباعة الشهادة</title>');
             printWindow.document.write('<style>');
-            // Inline the CSS for printing to ensure it applies correctly
             printWindow.document.write(`
                 @page { size: A4 landscape; margin: 0; }
-                body {
-                    font-family: 'Segoe UI', 'AmiriQuran', Tahoma, Geneva, Verdana, sans-serif;
-                    direction: rtl;
-                    margin: 0;
-                    padding: 0;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    min-height: 100vh;
-                }
-                .certificate {
-                    width: 28cm; /* A4 landscape width for print */
-                    height: 19cm; /* A4 landscape height for print */
-                    border: none;
-                    background-color: transparent;
-                    background-image: url('لقطة الشاشة 2025-06-19 201454.jpg') !important; /* !!! PATH TO YOUR TEMPLATE IMAGE !!! */
-                    background-size: 100% 100% !important;
-                    background-repeat: no-repeat !important;
-                    position: relative;
-                    box-sizing: border-box;
-                    overflow: hidden;
-                    box-shadow: none;
+                body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+                img {
+                    width: 100%; /* اجعل الصورة تملأ عرض النافذة */
+                    height: auto;
+                    display: block;
                     page-break-after: avoid;
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
-                }
-                /* Ensure dynamic text prints correctly with exact colors */
-                .dynamic-text {
-                    position: absolute;
-                    text-align: center;
-                    color: #000 !important; /* Force black for print */
-                    font-family: 'Segoe UI', 'AmiriQuran', Tahoma, Geneva, Verdana, sans-serif;
-                    font-weight: bold;
-                    line-height: 1.2;
-                    white-space: nowrap;
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
-                }
-                .participant-name {
-                    top: 280px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    font-size: 1.8em !important;
-                    width: 600px;
-                    color: rgb(6, 112, 102) !important;
-                }
-                .workshop-details-section {
-                    position: absolute;
-                    width: 700px;
-                    top: 340px; /* تم التعديل لتنزيله بمقدار درجتين إضافيتين */
-                    left: 50%;
-                    transform: translateX(-50%);
-                    text-align: center;
-                    line-height: 1.8 !important; /* تم التعديل لزيادة التباعد بين السطور */
-                }
-                .workshop-details-section .intro-text {
-                    position: absolute;
-                    top: 0;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    font-size: 1.3em !important;
-                    color: #000 !important;
-                    white-space: normal;
-                    width: 100%;
-                    margin-bottom: 20px !important; /* مسافة إضافية بين النص التمهيدي واسم الدورة (زيادة) */
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
-                }
-                .workshop-details-section .duration-dynamic {
-                    display: inline-block;
-                    font-size: 1.1em !important;
-                    color: #000 !important;
-                    margin: 0 5px;
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
-                }
-                .workshop-details-section .title-intro-text {
-                    display: inline-block;
-                    font-size: 1.1em !important;
-                    color: #000 !important;
-                    margin: 0 5px;
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
-                }
-                .workshop-details-section .workshop-title-dynamic {
-                    position: absolute;
-                    top: 45px; /* تم التعديل لتنزيله بمقدار درجة لأسفل */
-                    left: 50%;
-                    transform: translateX(-50%);
-                    font-size: 1.8em !important;
-                    color: rgb(6, 112, 102) !important;
-                    width: 650px;
-                    white-space: normal;
-                    margin-bottom: 25px !important; /* مسافة إضافية بين اسم الدورة وتاريخها (زيادة) */
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
-                }
-                .workshop-details-section .dates-dynamic {
-                    position: absolute;
-                    top: 100px; /* تم التعديل لتنزيله بمقدار درجة إضافية لأسفل */
-                    left: 50%;
-                    transform: translateX(-50%);
-                    font-size: 1.3em !important;
-                    color: #000 !important;
-                    width: 700px;
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
-                }
-                .instructor-block {
-                    position: absolute;
-                    bottom: 40px !important; /* تم التعديل لرفعها للأعلى بمقدار درجتين */
-                    right: 170px;
-                    text-align: center;
-                    font-size: 0.9em !important;
-                    color: #000 !important;
-                    line-height: 0.8 !important;
-                }
-                .instructor-block .name {
-                    font-weight: bold;
-                    color: #000 !important;
-                }
-                .dean-block {
-                    position: absolute;
-                    bottom: 40px !important; /* تم التعديل لرفعها للأعلى بمقدار درجتين */
-                    left: 170px;
-                    text-align: center;
-                    font-size: 0.9em !important;
-                    color: #000 !important;
-                    line-height: 0.8 !important;
-                }
-                .dean-block .name {
-                    font-weight: bold;
-                    color: #000 !important;
                 }
             `);
-            printWindow.document.write('</head><body>');
-            printWindow.document.write(printContent.outerHTML);
+            printWindow.document.write('</style></head><body>');
+            printWindow.document.write(`<img src="${imgData}" />`); // عرض الصورة الملتقطة فقط
+            printWindow.document.write('</body></html>');
             printWindow.document.close();
-            printWindow.focus();
-            printWindow.print();
+
+            // انتظر قليلاً لضمان تحميل الصورة في النافذة الجديدة قبل الطباعة
+            printWindow.onload = function() {
+                setTimeout(() => { // تأخير بسيط آخر لضمان جاهزية الطباعة
+                    printWindow.focus();
+                    printWindow.print();
+                    // printWindow.close(); // يمكنك إلغاء التعليق إذا كنت ترغب في إغلاق نافذة الطباعة تلقائيًا
+                }, 500); // 500 ملي ثانية قد تكون كافية، يمكن زيادتها إذا استمرت المشكلة
+            };
+
         } else {
             alert('لم يتم العثور على الشهادة للطباعة.');
         }
@@ -1232,25 +1132,35 @@
             const participant = participantsData[i];
             const certElement = certElements[i];
 
-            // For PDF export, use html2canvas with a higher scale for quality
-            // Ensure background-image is picked up by html2canvas
+            // إخفاء أزرار الإجراءات قبل التقاط الصورة لكي لا تظهر في PDF
+            const actionsDiv = certElement.nextElementSibling;
+            if (actionsDiv && actionsDiv.classList.contains('certificate-actions')) {
+                actionsDiv.style.display = 'none';
+            }
+
+            // لإنشاء PDF عالي الجودة، استخدم html2canvas مع مقياس أعلى
             const canvas = await html2canvas(certElement, {
-                scale: 3, // Increased scale for very high quality PDF
-                useCORS: true,
+                scale: 3, // مقياس عالٍ جدًا لجودة PDF ممتازة
+                useCORS: true, // مهم لصور الخلفية إذا لم تكن من نفس المصدر
                 scrollY: -window.scrollY,
                 scrollX: -window.scrollX,
                 windowWidth: document.documentElement.offsetWidth,
                 windowHeight: document.documentElement.offsetHeight,
-                backgroundColor: null // Ensure transparency is maintained if any part of the image is transparent
+                backgroundColor: null // التأكد من الشفافية
             });
 
-            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            // إعادة إظهار أزرار الإجراءات بعد التقاط الصورة
+            if (actionsDiv && actionsDiv.classList.contains('certificate-actions')) {
+                actionsDiv.style.display = 'flex'; // أو 'block'
+            }
+
+            const imgData = canvas.toDataURL('image/jpeg', 1.0); // استخدام JPEG لتقليل حجم الملف
 
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({
                 orientation: 'landscape',
                 unit: 'px',
-                // Match PDF size to the actual rendered size of the certificate element
+                // مطابقة حجم PDF للحجم الفعلي لعنصر الشهادة المعروض
                 format: [certElement.offsetWidth, certElement.offsetHeight]
             });
 
@@ -1298,7 +1208,7 @@
 
     function formatDateCustom(dateString) {
         if (!dateString) return '';
-        const date = new Date(dateString + 'T00:00:00'); // Add T00:00:00 to avoid timezone issues
+        const date = new Date(dateString + 'T00:00:00'); // إضافة T00:00:00 لتجنب مشاكل المنطقة الزمنية
         const optionsDayOfWeek = { weekday: 'long' };
         const optionsDate = { day: 'numeric', month: 'long', year: 'numeric' };
 
