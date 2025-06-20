@@ -638,7 +638,7 @@
         <p id="exportTabMessage" style="text-align: center; color: #666;">يرجى اختيار دورة وتجهيز المتدربين في تبويب "إدارة المتدربين" لعرض الشهادات هنا.</p>
         <div style="text-align: center; margin-bottom: 20px;">
             <button class="export-btn" onclick="exportCertificatesPdfZip()">تصدير جميع الشهادات كـ PDF (ملف مضغوط ZIP)</button>
-            <button class="send-all-certificates-link-btn" onclick="redirectToCertificatesLink()">إرسال الشهادات (مستقبلًا)</button>
+            <button class="send-all-certificates-link-btn" onclick="sendAllCertificatesAndReport()">إرسال جميع الشهادات</button>
         </div>
         <div class="certificates" id="certContainer"></div>
     </div>
@@ -964,19 +964,24 @@
                 </div>
             `;
             div.appendChild(certificateContent);
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'certificate-actions';
-            actionsDiv.innerHTML = `
-                <button class="send-email-btn" onclick="sendCertificateEmail(${index})">إرسال الشهادة بالإيميل</button>
-                <button class="print-btn" onclick="printCertificate(${index})">طباعة الشهادة</button>
-            `;
-            div.appendChild(actionsDiv);
+            
+            // ***** تم حذف هذا الجزء الذي كان ينشئ الأزرار الفردية *****
+            // const actionsDiv = document.createElement('div');
+            // actionsDiv.className = 'certificate-actions';
+            // actionsDiv.innerHTML = `
+            //     <button class="send-email-btn" onclick="sendCertificateEmail(${index})">إرسال الشهادة بالإيميل</button>
+            //     <button class="print-btn" onclick="printCertificate(${index})">طباعة الشهادة</button>
+            // `;
+            // div.appendChild(actionsDiv);
+            // ***** نهاية الحذف *****
 
             container.appendChild(div);
         });
     }
 
     async function sendCertificateEmail(index) {
+        // هذه الدالة لم تعد تُستدعى بعد حذف الأزرار الفردية
+        // لكن تم الإبقاء عليها هنا في حال أردت إعادة استخدامها لاحقًا
         const participant = participantsData[index];
         const course = courses[selectedCourseIndex];
 
@@ -1034,6 +1039,8 @@
     }
 
     function printCertificate(index) {
+        // هذه الدالة لم تعد تُستدعى بعد حذف الأزرار الفردية
+        // لكن تم الإبقاء عليها هنا في حال أردت إعادة استخدامها لاحقًا
         const certificateElement = document.querySelectorAll('.certificates .certificate')[index];
         if (certificateElement) {
             const printContent = certificateElement.cloneNode(true);
@@ -1209,25 +1216,21 @@
             const participant = participantsData[i];
             const certElement = certElements[i];
 
-            // For PDF export, use html2canvas with a higher scale for quality
-            // Ensure background-image is picked up by html2canvas
             const canvas = await html2canvas(certElement, {
-                scale: 3, // Increased scale for very high quality PDF
+                scale: 1.5,
                 useCORS: true,
                 scrollY: -window.scrollY,
                 scrollX: -window.scrollX,
                 windowWidth: document.documentElement.offsetWidth,
                 windowHeight: document.documentElement.offsetHeight,
-                // backgroundColor: null // Ensure transparency is maintained if any part of the image is transparent
             });
 
-            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            const imgData = canvas.toDataURL('image/jpeg', 0.7);
 
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({
                 orientation: 'landscape',
                 unit: 'px',
-                // Match PDF size to the actual rendered size of the certificate element
                 format: [certElement.offsetWidth, certElement.offsetHeight]
             });
 
@@ -1237,7 +1240,8 @@
             pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
             const pdfBlob = pdf.output('blob');
 
-            const fileName = `شهادة_${participant.name}_${course.name}.pdf`;
+            const fileName = `${participant.name}.pdf`;
+
             zip.file(fileName, pdfBlob);
 
             console.log(`تم إضافة شهادة ${participant.name} إلى ملف الـ ZIP.`);
@@ -1258,11 +1262,14 @@
             });
     }
 
-    function redirectToCertificatesLink() {
-        // هذا هو التعديل الأساسي: فتح الرابط في نافذة/علامة تبويب جديدة
+    async function sendAllCertificatesAndReport() {
         window.open('https://script.google.com/macros/s/AKfycbxL0tU5gOytqp_-SgsJd175ez2UZriVLRGawr5F3XM/dev', '_blank');
-        // يمكنك إزالة الـ alert التالي إذا لم تعد ترغب في ظهوره
-        // alert('تم فتح صفحة رابط الشهادات.');
+        
+        alert('سيتم فتح رابط الشهادات في علامة تبويب جديدة.');
+
+        const sendAllBtn = document.querySelector('.send-all-certificates-link-btn');
+        sendAllBtn.disabled = false;
+        sendAllBtn.textContent = 'إرسال جميع الشهادات';
     }
 
     function saveData() {
