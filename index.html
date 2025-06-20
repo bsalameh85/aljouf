@@ -136,7 +136,7 @@
             height: 650px; /* Adjusted height for the template image */
             border: none;
             background-color: transparent; /* Make background transparent to show image */
-            background-image: url('لقطة الشاشة 2025-06-19 201454.jpg'); /* !!! PATH TO YOUR TEMPLATE IMAGE !!! */
+            background-image: url('لقطة الشاشة 2025-06-20 215619.jpg'); /* !!! PATH TO YOUR TEMPLATE IMAGE !!! */
             background-size: 100% 100%; /* Cover the entire area */
             background-repeat: no-repeat;
             position: relative; /* Crucial for absolute positioning of dynamic text */
@@ -414,7 +414,7 @@
                 page-break-after: always; /* Ensure each certificate is on a new page */
                 margin: 0 auto;
                 /* Ensure background image is printed */
-                background-image: url('لقطة الشاشة 2025-06-19 201454.jpg') !important; /* !!! PATH TO YOUR TEMPLATE IMAGE !!! */
+                background-image: url('لقطة الشاشة 2025-06-20 215619.jpg') !important; /* !!! PATH TO YOUR TEMPLATE IMAGE !!! */
                 background-size: 100% 100% !important;
                 background-repeat: no-repeat !important;
                 position: relative;
@@ -619,7 +619,7 @@
         <div style="text-align: center; margin-bottom: 20px;">
             <button class="export-btn" onclick="exportCertificatesPdfZip()">تصدير جميع الشهادات كـ PDF (ملف مضغوط ZIP)</button>
             <button class="send-all-certificates-link-btn" id="sendAllCertificatesBtn" onclick="redirectToCertificatesLink()">إرسال الشهادات عبر البريد الإلكتروني (عبر Google Drive)</button>
-            </div>
+        </div>
         <div class="certificates" id="certContainer"></div>
     </div>
 
@@ -642,7 +642,6 @@
         if (event && event.currentTarget) {
             event.currentTarget.classList.add('active');
         } else {
-            // هذا يحدث إذا تم استدعاء showTab برمجياً بدون event (مثل عند التحميل الأولي)
             document.querySelector(`.tabs button[onclick*="${tabId}"]`).classList.add('active');
         }
         
@@ -787,7 +786,7 @@
     }
 
     function resetParticipantsInput() {
-        document.getElementById('excelFile').value = ''; // تم الاحتفاظ به لـ Excel/CSV
+        document.getElementById('excelFile').value = '';
         document.getElementById('manualParticipantName').value = '';
         document.getElementById('manualParticipantEmail').value = '';
         participantsData = [];
@@ -818,12 +817,11 @@
         const reader = new FileReader();
         reader.onload = function(e){
             const data = new Uint8Array(e.target.result);
-            // تحديد نوع الملف (Excel أو CSV) بناءً على الامتداد
             let workbook;
             if (file.name.endsWith('.xlsx')) {
                 workbook = XLSX.read(data, {type:'array'});
             } else if (file.name.endsWith('.csv')) {
-                workbook = XLSX.read(e.target.result, {type:'string'}); // قراءة CSV كنص
+                workbook = XLSX.read(e.target.result, {type:'string'});
             } else {
                 alert('صيغة ملف غير مدعومة. يرجى رفع ملف .xlsx أو .csv');
                 return;
@@ -834,7 +832,7 @@
             const json = XLSX.utils.sheet_to_json(sheet, {header:1});
 
             participantsData = [];
-            for(let i=1; i<json.length; i++) { // البدء من 1 لتخطي صف الرأس إن وجد
+            for(let i=1; i<json.length; i++) {
                 const row = json[i];
                 if(row.length > 0 && row[0]) {
                     participantsData.push({ name: String(row[0]).trim(), email: row[1] ? String(row[1]).trim() : '' });
@@ -843,7 +841,6 @@
             alert(`تم تحميل ${participantsData.length} اسماً من ملف ${file.name.endsWith('.xlsx') ? 'Excel' : 'CSV'}.`);
             renderParticipantListTable();
         }
-        // قراءة الملف كـ ArrayBuffer لـ Excel، أو نص لـ CSV
         if (file.name.endsWith('.xlsx')) {
             reader.readAsArrayBuffer(file);
         } else if (file.name.endsWith('.csv')) {
@@ -976,7 +973,6 @@
 
             const actionsDiv = document.createElement('div');
             actionsDiv.className = 'certificate-actions';
-            // تمت إعادة زر الطباعة الفردي هنا
             actionsDiv.innerHTML = `
                <button class="print-btn" onclick="printCertificate(${index})">طباعة الشهادة</button>
             `;
@@ -991,7 +987,6 @@
         return re.test(String(email).toLowerCase());
     }
 
-    // تم إرجاع هذه الدالة للطباعة الفردية
     function printCertificate(index) {
         const certificateElement = document.querySelectorAll('.certificates .certificate')[index];
         if (certificateElement) {
@@ -999,7 +994,6 @@
             const printWindow = window.open('', '', 'height=600,width=800');
             printWindow.document.write('<html><head><title>طباعة الشهادة</title>');
             printWindow.document.write('<style>');
-            // Inline the CSS for printing to ensure it applies correctly
             printWindow.document.write(`
                 @page { size: A4 landscape; margin: 0; }
                 body {
@@ -1017,7 +1011,7 @@
                     height: 19cm; /* A4 landscape height for print */
                     border: none;
                     background-color: transparent;
-                    background-image: url('لقطة الشاشة 2025-06-19 201454.jpg') !important; /* !!! PATH TO YOUR TEMPLATE IMAGE !!! */
+                    background-image: url('لقطة الشاشة 2025-06-20 215619.jpg') !important; /* !!! PATH TO YOUR TEMPLATE IMAGE !!! */
                     background-size: 100% 100% !important;
                     background-repeat: no-repeat !important;
                     position: relative;
@@ -1147,7 +1141,6 @@
         }
     }
 
-    // تم إرجاع هذه الدالة لتصدير PDF ZIP
     async function exportCertificatesPdfZip() {
         if (participantsData.length === 0 || selectedCourseIndex === null || !courses[selectedCourseIndex]) {
             alert('لا توجد شهادات لتصديرها. يرجى التأكد من اختيار الدورة وإضافة المتدربين أولاً.');
@@ -1170,8 +1163,9 @@
             const participant = participantsData[i];
             const certElement = certElements[i];
 
+            // ***** التعديلات لتقليل حجم ملف PDF *****
             const canvas = await html2canvas(certElement, {
-                scale: 3, // Increased scale for very high quality PDF
+                scale: 2.0, // القيمة الأصلية كانت 3.0. جرب 2.0 أولاً، إذا لم تكن الجودة كافية ارفعها، وإذا كان الحجم لا يزال كبيرًا والجودة ممتازة، قللها إلى 1.5.
                 useCORS: true,
                 scrollY: -window.scrollY,
                 scrollX: -window.scrollX,
@@ -1180,7 +1174,8 @@
                 backgroundColor: null
             });
 
-            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            // تقليل جودة صورة JPEG. القيمة 0.8 تعني 80% جودة. يمكنك تخفيضها إلى 0.7 أو 0.6 للمزيد من الضغط.
+            const imgData = canvas.toDataURL('image/jpeg', 0.8); // <-- تم تعديل هذه القيمة
 
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({
@@ -1216,11 +1211,9 @@
             });
     }
 
-    // تم تعديل هذه الدالة للتحويل المباشر إلى الرابط المحدد
     function redirectToCertificatesLink() {
         const targetUrl = "https://script.google.com/macros/s/AKfycbwKMX8QdwTSlmSuPMMUkYAlES334aBH3CCcGtB65RSm/dev";
-        window.open(targetUrl, '_blank'); // يفتح الرابط في نافذة جديدة
-        // يمكنك إضافة رسالة توضيحية للمستخدم هنا إذا أردت
+        window.open(targetUrl, '_blank');
         alert('سيتم فتح صفحة Google Apps Script في نافذة جديدة لإرسال الشهادات. يرجى اتباع التعليمات هناك.');
     }
 
@@ -1237,7 +1230,7 @@
 
     function formatDateCustom(dateString) {
         if (!dateString) return '';
-        const date = new Date(dateString + 'T00:00:00'); // Add T00:00:00 to avoid timezone issues
+        const date = new Date(dateString + 'T00:00:00');
         const optionsDayOfWeek = { weekday: 'long' };
         const optionsDate = { day: 'numeric', month: 'long', year: 'numeric' };
 
