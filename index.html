@@ -590,7 +590,9 @@
         </select>
 
         <hr style="margin: 30px 0; border: 0; border-top: 1px solid #eee;">
-        <h2>1. رفع ملف أسماء المشتركين (Excel / CSV)</h2>        <p>يرجى التأكد أن العمود الأول هو الاسم والعمود الثاني هو البريد الإلكتروني.</p>        <input type="file" id="excelFile" accept=".xlsx, .csv" /> <div class="manual-entry-section">
+        <h2>1. رفع ملف أسماء المشتركين (Excel / CSV)</h2>        <p>يرجى التأكد أن العمود الأول هو الاسم والعمود الثاني هو البريد الإلكتروني.</p>        <input type="file" id="excelFile" accept=".xlsx, .csv" />
+
+        <div class="manual-entry-section">
             <h3>أو 2. إضافة متدرب يدويًا</h3>
             <input type="text" id="manualParticipantName" placeholder="اسم المتدرب" />
             <input type="email" id="manualParticipantEmail" placeholder="البريد الإلكتروني (اختياري)" />
@@ -832,7 +834,7 @@
             const json = XLSX.utils.sheet_to_json(sheet, {header:1});
 
             participantsData = [];
-            for(let i=1; i<json.length; i++) {
+            for(let i=1; i<json.length; i++) { // Start from 1 to skip header row
                 const row = json[i];
                 if(row.length > 0 && row[0]) {
                     participantsData.push({ name: String(row[0]).trim(), email: row[1] ? String(row[1]).trim() : '' });
@@ -1163,9 +1165,8 @@
             const participant = participantsData[i];
             const certElement = certElements[i];
 
-            // ***** التعديلات لتقليل حجم ملف PDF *****
             const canvas = await html2canvas(certElement, {
-                scale: 2.0, // القيمة الأصلية كانت 3.0. جرب 2.0 أولاً، إذا لم تكن الجودة كافية ارفعها، وإذا كان الحجم لا يزال كبيرًا والجودة ممتازة، قللها إلى 1.5.
+                scale: 2.0, // يمكن تعديلها لتحسين الجودة/الحجم. 2.0 يعتبر جودة جيدة وحجم معقول.
                 useCORS: true,
                 scrollY: -window.scrollY,
                 scrollX: -window.scrollX,
@@ -1175,7 +1176,7 @@
             });
 
             // تقليل جودة صورة JPEG. القيمة 0.8 تعني 80% جودة. يمكنك تخفيضها إلى 0.7 أو 0.6 للمزيد من الضغط.
-            const imgData = canvas.toDataURL('image/jpeg', 0.8); // <-- تم تعديل هذه القيمة
+            const imgData = canvas.toDataURL('image/jpeg', 0.8);
 
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({
@@ -1211,10 +1212,12 @@
             });
     }
 
+    // هذه الدالة تفتح نافذة جديدة لصفحة Google Apps Script التي ستقوم بإرسال الإيميلات
     function redirectToCertificatesLink() {
-        const targetUrl = "https://script.google.com/macros/s/AKfycbwKMX8QdwTSlmSuPMMUkYAlES334aBH3CCcGtB65RSm/dev";
+        // *** هام: استبدل هذا الرابط بالرابط الفعلي لتطبيق الويب الخاص بك بعد نشره ***
+        const targetUrl = "https://script.google.com/macros/s/AKfycbwKMX8QdwTSlmSuPMMUkYAlES334aBH3CCcGtB65RSm/dev"; 
         window.open(targetUrl, '_blank');
-        alert('سيتم فتح صفحة Google Apps Script في نافذة جديدة لإرسال الشهادات. يرجى اتباع التعليمات هناك.');
+        alert('سيتم فتح صفحة Google Apps Script جديدة. في تلك الصفحة، يمكنك تحميل ملف CSV بالأسماء والإيميلات لإرسال الشهادات. يرجى اتباع التعليمات هناك.');
     }
 
     function saveData() {
