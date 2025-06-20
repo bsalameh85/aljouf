@@ -389,6 +389,52 @@
         #courseTab input[type="date"]:first-of-type {
             margin-left: 10px;
         }
+        /* Styles for email results */
+        #emailResults {
+            margin-top: 20px;
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            display: none; /* Hidden by default */
+        }
+        #emailResults.active {
+            display: block;
+        }
+        #emailResults h3 {
+            color: #007bff;
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        #emailResults ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        #emailResults ul li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #ced4da;
+            font-size: 0.95em;
+        }
+        #emailResults ul li:last-child {
+            border-bottom: none;
+        }
+        #emailResults ul li .status-success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        #emailResults ul li .status-fail {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        #emailResults ul li .status-warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+
         /* Print Styles - Crucial for background image and exact positioning */
         @media print {
             body * {
@@ -620,9 +666,13 @@
         <p id="exportTabMessage" style="text-align: center; color: #666;">يرجى اختيار دورة وتجهيز المتدربين في تبويب "إدارة المتدربين" لعرض الشهادات هنا.</p>
         <div style="text-align: center; margin-bottom: 20px;">
             <button class="export-btn" onclick="exportCertificatesPdfZip()">تصدير جميع الشهادات كـ PDF (ملف مضغوط ZIP)</button>
-            <button class="send-all-certificates-link-btn" id="sendAllCertificatesBtn" onclick="redirectToCertificatesLink()">إرسال الشهادات عبر البريد الإلكتروني (عبر Google Drive)</button>
+            <button class="send-all-certificates-link-btn" id="sendAllCertificatesBtn" onclick="sendAllCertificatesByEmail()">إرسال الشهادات عبر البريد الإلكتروني (عبر Google Drive)</button>
         </div>
         <div class="certificates" id="certContainer"></div>
+        <div id="emailResults">
+            <h3>نتائج إرسال البريد الإلكتروني:</h3>
+            <ul id="emailResultsList"></ul>
+        </div>
     </div>
 
 <script>
@@ -650,6 +700,9 @@
         if (tabId === 'uploadTab') {
             resetParticipantsInput();
         } else if (tabId === 'exportTab') {
+            document.getElementById('emailResults').classList.remove('active'); // إخفاء النتائج عند تغيير التبويب
+            document.getElementById('emailResultsList').innerHTML = ''; // مسح النتائج القديمة
+
             if (selectedCourseIndex !== null && participantsData.length > 0) {
                 document.getElementById('exportTabMessage').style.display = 'none';
                 renderCertificates();
@@ -1212,12 +1265,65 @@
             });
     }
 
-    // هذه الدالة تفتح نافذة جديدة لصفحة Google Apps Script التي ستقوم بإرسال الإيميلات
-    function redirectToCertificatesLink() {
-        // *** هام: استبدل هذا الرابط بالرابط الفعلي لتطبيق الويب الخاص بك بعد نشره ***
-        const targetUrl = "https://script.google.com/macros/s/AKfycbwKMX8QdwTSlmSuPMMUkYAlES334aBH3CCcGtB65RSm/dev"; 
-        window.open(targetUrl, '_blank');
-        alert('سيتم فتح صفحة Google Apps Script جديدة. في تلك الصفحة، يمكنك تحميل ملف CSV بالأسماء والإيميلات لإرسال الشهادات. يرجى اتباع التعليمات هناك.');
+    // *** الدالة الجديدة لإرسال الشهادات عبر البريد الإلكتروني ***
+    function sendAllCertificatesByEmail() {
+        if (selectedCourseIndex === null || selectedCourseIndex === '' || !courses[selectedCourseIndex]) {
+            alert('يرجى اختيار الدورة أولاً.');
+            return;
+        }
+        if (participantsData.length === 0) {
+            alert('لا توجد أسماء متدربين. يرجى إضافة أسماء يدوياً أو عن طريق ملف Excel/CSV.');
+            return;
+        }
+
+        const course = courses[selectedCourseIndex];
+        const courseName = course.name;
+
+        // تحويل بيانات المتدربين إلى تنسيق CSV string
+        const csvContent = participantsData.map(p => `${p.name},${p.email}`).join('\n');
+
+        const sendBtn = document.getElementById('sendAllCertificatesBtn');
+        sendBtn.disabled = true;
+        sendBtn.textContent = 'جاري الإرسال... الرجاء الانتظار';
+
+        document.getElementById('emailResults').classList.remove('active'); // إخفاء النتائج القديمة
+        document.getElementById('emailResultsList').innerHTML = ''; // مسح النتائج القديمة
+
+        google.script.run
+            .withSuccessHandler(function(results) {
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'إرسال الشهادات عبر البريد الإلكتروني (عبر Google Drive)';
+                displayEmailResults(results);
+                alert('اكتملت عملية إرسال الشهادات. يرجى مراجعة النتائج أدناه.');
+            })
+            .withFailureHandler(function(error) {
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'إرسال الشهادات عبر البريد الإلكتروني (عبر Google Drive)';
+                alert('حدث خطأ أثناء إرسال الشهادات: ' + error.message);
+                console.error('Apps Script Error:', error);
+                displayEmailResults([{ name: "خطأ عام", email: "N/A", status: `❌ فشل عام: ${error.message}` }]);
+            })
+            .processRecipientsAndSend(csvContent, courseName); // استدعاء الدالة الصحيحة في Apps Script
+    }
+
+    function displayEmailResults(results) {
+        const resultsList = document.getElementById('emailResultsList');
+        resultsList.innerHTML = '';
+        document.getElementById('emailResults').classList.add('active');
+
+        results.forEach(item => {
+            const li = document.createElement('li');
+            let statusClass = '';
+            if (item.status.includes('✅')) {
+                statusClass = 'status-success';
+            } else if (item.status.includes('❌')) {
+                statusClass = 'status-fail';
+            } else if (item.status.includes('⚠️')) {
+                statusClass = 'status-warning';
+            }
+            li.innerHTML = `<strong>${item.name}</strong> (${item.email || 'لا يوجد بريد'}): <span class="${statusClass}">${item.status}</span>`;
+            resultsList.appendChild(li);
+        });
     }
 
     function saveData() {
