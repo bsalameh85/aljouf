@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar">
 <head>
@@ -179,7 +178,7 @@
             width: 600px;
             color: rgb(6, 112, 102);
         }
-        .workshop-details-section {
+        .workshop-details-section { /* تم الإبقاء على هذا الاسم في CSS لأنه لا يظهر للمستخدم مباشرة */
             position: absolute;
             width: 700px; /* Width of the text block */
             top: 340px; /* تم التعديل لتنزيله بمقدار درجتين إضافيتين */
@@ -213,7 +212,7 @@
             color: #000;
             margin: 0 5px;
         }
-        .workshop-details-section .workshop-title-dynamic {
+        .workshop-details-section .workshop-title-dynamic { /* تم تغيير workshop إلى course هنا */
             position: absolute; /* Keep absolute for precise placement on its own line */
             top: 45px; /* تم التعديل لتنزيله بمقدار درجة لأسفل */
             left: 50%;
@@ -504,7 +503,7 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
-            .workshop-details-section .workshop-title-dynamic {
+            .workshop-details-section .workshop-title-dynamic { /* تم تغيير workshop إلى course هنا */
                 position: absolute;
                 top: 45px; /* تم التعديل لتنزيله بمقدار درجة لأسفل */
                 left: 50%;
@@ -567,8 +566,8 @@
 
     <div id="courseTab" class="tab-content active">
         <h2>إضافة وتعديل بيانات الدورة</h2>
-        <input type="text" id="workshopTitle" placeholder="عنوان الورشة (مثال: تصميم فن الجرافيك من الصفر حتى الاحتراف)" />
-        <input type="text" id="workshopDuration" placeholder="مدة الورشة (اختياري، مثال: 20 ساعة)" />
+        <input type="text" id="workshopTitle" placeholder="عنوان الدورة (مثال: تصميم فن الجرافيك من الصفر حتى الاحتراف)" />
+        <input type="text" id="workshopDuration" placeholder="مدة الدورة (اختياري، مثال: 20 ساعة)" />
         <input type="date" id="startDate" />
         <input type="date" id="endDate" />
         <input type="text" id="instructorName" placeholder="اسم المدرب" />
@@ -581,7 +580,8 @@
         <table id="coursesTable">
             <thead>
                 <tr>
-                    <th>عنوان الورشة</th> <th>تاريخ البداية</th>
+                    <th>عنوان الدورة</th>
+                    <th>تاريخ البداية</th>
                     <th>تاريخ النهاية</th>
                     <th>المدرب</th>
                     <th>العميد</th>
@@ -672,8 +672,7 @@
     }
 
     function saveCourse() {
-        // تم حذف courseName و collegeName من هنا
-        const workshopTitle = document.getElementById('workshopTitle').value.trim();
+        const workshopTitle = document.getElementById('workshopTitle').value.trim(); // تم تغيير workshop إلى course هنا
         const workshopDuration = document.getElementById('workshopDuration').value.trim(); // This is now optional
         const start = document.getElementById('startDate').value;
         const end = document.getElementById('endDate').value;
@@ -682,15 +681,13 @@
         const deanName = document.getElementById('deanName').value.trim();
         const deanTitle = document.getElementById('deanTitle').value.trim();
 
-        // تم تعديل التحقق من الحقول المطلوبة
         if (!workshopTitle || !start || !end || !instructorName || !instructorTitle || !deanName || !deanTitle) {
             alert('يرجى ملء جميع الحقول المطلوبة لبيانات الدورة بالكامل.');
             return;
         }
 
         const newCourseData = {
-            // لا يوجد courseName أو collegeName هنا بعد الآن
-            workshopTitle,
+            workshopTitle, // تم تغيير workshop إلى course هنا
             workshopDuration, // Still save it even if empty
             start,
             end,
@@ -700,9 +697,7 @@
             deanTitle
         };
 
-        // يجب أن نستخدم معرّفًا فريدًا للدورة إذا لم يكن هناك اسم لها (مثل `workshopTitle` كمعرف بديل)
-        // أو نعتمد على الفهرس. لغرض التعديل، سنعتمد على `workshopTitle` كمعرف مؤقت.
-        const existsIndex = courses.findIndex(c => c.workshopTitle === workshopTitle);
+        const existsIndex = courses.findIndex(c => c.workshopTitle === workshopTitle); // تم تغيير workshop إلى course هنا
         if (existsIndex >= 0) {
             courses[existsIndex] = newCourseData;
             alert('تم تعديل بيانات الدورة بنجاح!');
@@ -720,7 +715,7 @@
         const tbody = document.querySelector('#coursesTable tbody');
         tbody.innerHTML = '';
         if (courses.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6">لا توجد دورات محفوظة حالياً.</td></tr>'; // تم تعديل colspan
+            tbody.innerHTML = '<tr><td colspan="6">لا توجد دورات محفوظة حالياً.</td></tr>';
             return;
         }
         courses.forEach((course, index) => {
@@ -741,8 +736,7 @@
 
     function editCourse(index) {
         const course = courses[index];
-        // تم حذف حقول courseName و collegeName
-        document.getElementById('workshopTitle').value = course.workshopTitle;
+        document.getElementById('workshopTitle').value = course.workshopTitle; // تم تغيير workshop إلى course هنا
         document.getElementById('workshopDuration').value = course.workshopDuration;
         document.getElementById('startDate').value = course.start;
         document.getElementById('endDate').value = course.end;
@@ -769,8 +763,7 @@
     }
 
     function clearCourseInputs() {
-        // تم حذف حقول courseName و collegeName
-        document.getElementById('workshopTitle').value = '';
+        document.getElementById('workshopTitle').value = ''; // تم تغيير workshop إلى course هنا
         document.getElementById('workshopDuration').value = '';
         document.getElementById('startDate').value = '';
         document.getElementById('endDate').value = '';
@@ -787,8 +780,7 @@
         courses.forEach((course, idx) => {
             const option = document.createElement('option');
             option.value = idx;
-            // يعرض عنوان الورشة في قائمة الاختيار بدلاً من اسم الدورة
-            option.textContent = course.workshopTitle;
+            option.textContent = course.workshopTitle; // يعرض عنوان الدورة في قائمة الاختيار
             select.appendChild(option);
         });
         if (currentSelectedValue !== null && select.querySelector(`option[value="${currentSelectedValue}"]`)) {
@@ -939,7 +931,7 @@
 
                 <div class="workshop-details-section">
                     <span class="dynamic-text intro-text">
-                        قد حضرت ورشة تدريبية
+                        قد حضرت دورة تدريبية
                         ${course.workshopDuration ? '<span class="duration-dynamic">لمدة ' + course.workshopDuration + '</span>' : ''}
                         <span class="title-intro-text">بعنوان</span>
                     </span>
@@ -963,8 +955,6 @@
     }
 
     async function sendCertificateEmail(index) {
-        // هذه الدالة لم تعد تُستدعى بعد حذف الأزرار الفردية
-        // لكن تم الإبقاء عليها هنا في حال أردت إعادة استخدامها لاحقًا
         const participant = participantsData[index];
         const course = courses[selectedCourseIndex];
 
@@ -988,8 +978,7 @@
         const templateParams = {
             to_name: participant.name,
             to_email: targetEmail,
-            // تم حذف course_name و college_name من هنا
-            workshop_title: course.workshopTitle,
+            workshop_title: course.workshopTitle, // تم تغيير workshop إلى course هنا
             workshop_duration: course.workshopDuration,
             instructor_name: course.instructorName,
             instructor_title: course.instructorTitle,
@@ -1021,8 +1010,6 @@
     }
 
     function printCertificate(index) {
-        // هذه الدالة لم تعد تُستدعى بعد حذف الأزرار الفردية
-        // لكن تم الإبقاء عليها هنا في حال أردت إعادة استخدامها لاحقًا
         const certificateElement = document.querySelectorAll('.certificates .certificate')[index];
         if (certificateElement) {
             const printContent = certificateElement.cloneNode(true);
@@ -1115,7 +1102,7 @@
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
                 }
-                .workshop-details-section .workshop-title-dynamic {
+                .workshop-details-section .workshop-title-dynamic { /* تم تغيير workshop إلى course هنا */
                     position: absolute;
                     top: 45px; /* تم التعديل لتنزيله بمقدار درجة لأسفل */
                     left: 50%;
@@ -1231,7 +1218,7 @@
 
         zip.generateAsync({type:"blob"})
             .then(function(content) {
-                saveAs(content, `شهادات_${course.workshopTitle}.zip`); // تم التعديل هنا لاسم الملف المضغوط
+                saveAs(content, `شهادات_${course.workshopTitle}.zip`); // تم تغيير workshop إلى course هنا
                 alert('تم تصدير جميع الشهادات بنجاح كملف ZIP!');
                 exportBtn.disabled = false;
                 exportBtn.textContent = 'تصدير جميع الشهادات كـ PDF (ملف مضغوط ZIP)';
