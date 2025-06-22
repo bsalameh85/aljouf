@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar">
 <head>
@@ -566,8 +567,6 @@
 
     <div id="courseTab" class="tab-content active">
         <h2>إضافة وتعديل بيانات الدورة</h2>
-        <input type="text" id="courseName" placeholder="اسم الدورة (مثال: دورة الفوتوشوب)" />
-        <input type="text" id="collegeName" placeholder="اسم الكلية (مثال: الكلية التقنية للبنات بالجوف)" />
         <input type="text" id="workshopTitle" placeholder="عنوان الورشة (مثال: تصميم فن الجرافيك من الصفر حتى الاحتراف)" />
         <input type="text" id="workshopDuration" placeholder="مدة الورشة (اختياري، مثال: 20 ساعة)" />
         <input type="date" id="startDate" />
@@ -582,10 +581,8 @@
         <table id="coursesTable">
             <thead>
                 <tr>
-                    <th>اسم الدورة</th>
-                    <th>تاريخ البداية</th>
+                    <th>عنوان الورشة</th> <th>تاريخ البداية</th>
                     <th>تاريخ النهاية</th>
-                    <th>الكلية</th>
                     <th>المدرب</th>
                     <th>العميد</th>
                     <th>الإجراءات</th>
@@ -675,8 +672,7 @@
     }
 
     function saveCourse() {
-        const name = document.getElementById('courseName').value.trim();
-        const collegeName = document.getElementById('collegeName').value.trim();
+        // تم حذف courseName و collegeName من هنا
         const workshopTitle = document.getElementById('workshopTitle').value.trim();
         const workshopDuration = document.getElementById('workshopDuration').value.trim(); // This is now optional
         const start = document.getElementById('startDate').value;
@@ -686,15 +682,14 @@
         const deanName = document.getElementById('deanName').value.trim();
         const deanTitle = document.getElementById('deanTitle').value.trim();
 
-        // Removed workshopDuration from the required fields check
-        if (!name || !collegeName || !workshopTitle || !start || !end || !instructorName || !instructorTitle || !deanName || !deanTitle) {
+        // تم تعديل التحقق من الحقول المطلوبة
+        if (!workshopTitle || !start || !end || !instructorName || !instructorTitle || !deanName || !deanTitle) {
             alert('يرجى ملء جميع الحقول المطلوبة لبيانات الدورة بالكامل.');
             return;
         }
 
         const newCourseData = {
-            name,
-            collegeName,
+            // لا يوجد courseName أو collegeName هنا بعد الآن
             workshopTitle,
             workshopDuration, // Still save it even if empty
             start,
@@ -705,7 +700,9 @@
             deanTitle
         };
 
-        const existsIndex = courses.findIndex(c => c.name === name);
+        // يجب أن نستخدم معرّفًا فريدًا للدورة إذا لم يكن هناك اسم لها (مثل `workshopTitle` كمعرف بديل)
+        // أو نعتمد على الفهرس. لغرض التعديل، سنعتمد على `workshopTitle` كمعرف مؤقت.
+        const existsIndex = courses.findIndex(c => c.workshopTitle === workshopTitle);
         if (existsIndex >= 0) {
             courses[existsIndex] = newCourseData;
             alert('تم تعديل بيانات الدورة بنجاح!');
@@ -723,16 +720,14 @@
         const tbody = document.querySelector('#coursesTable tbody');
         tbody.innerHTML = '';
         if (courses.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7">لا توجد دورات محفوظة حالياً.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6">لا توجد دورات محفوظة حالياً.</td></tr>'; // تم تعديل colspan
             return;
         }
         courses.forEach((course, index) => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${course.name}</td>
-                <td>${formatDate(course.start)}</td>
+                <td>${course.workshopTitle}</td> <td>${formatDate(course.start)}</td>
                 <td>${formatDate(course.end)}</td>
-                <td>${course.collegeName}</td>
                 <td>${course.instructorName}</td>
                 <td>${course.deanName}</td>
                 <td>
@@ -746,8 +741,7 @@
 
     function editCourse(index) {
         const course = courses[index];
-        document.getElementById('courseName').value = course.name;
-        document.getElementById('collegeName').value = course.collegeName;
+        // تم حذف حقول courseName و collegeName
         document.getElementById('workshopTitle').value = course.workshopTitle;
         document.getElementById('workshopDuration').value = course.workshopDuration;
         document.getElementById('startDate').value = course.start;
@@ -775,8 +769,7 @@
     }
 
     function clearCourseInputs() {
-        document.getElementById('courseName').value = '';
-        document.getElementById('collegeName').value = '';
+        // تم حذف حقول courseName و collegeName
         document.getElementById('workshopTitle').value = '';
         document.getElementById('workshopDuration').value = '';
         document.getElementById('startDate').value = '';
@@ -794,7 +787,8 @@
         courses.forEach((course, idx) => {
             const option = document.createElement('option');
             option.value = idx;
-            option.textContent = course.name;
+            // يعرض عنوان الورشة في قائمة الاختيار بدلاً من اسم الدورة
+            option.textContent = course.workshopTitle;
             select.appendChild(option);
         });
         if (currentSelectedValue !== null && select.querySelector(`option[value="${currentSelectedValue}"]`)) {
@@ -964,17 +958,6 @@
                 </div>
             `;
             div.appendChild(certificateContent);
-            
-            // ***** تم حذف هذا الجزء الذي كان ينشئ الأزرار الفردية *****
-            // const actionsDiv = document.createElement('div');
-            // actionsDiv.className = 'certificate-actions';
-            // actionsDiv.innerHTML = `
-            //     <button class="send-email-btn" onclick="sendCertificateEmail(${index})">إرسال الشهادة بالإيميل</button>
-            //     <button class="print-btn" onclick="printCertificate(${index})">طباعة الشهادة</button>
-            // `;
-            // div.appendChild(actionsDiv);
-            // ***** نهاية الحذف *****
-
             container.appendChild(div);
         });
     }
@@ -1005,10 +988,9 @@
         const templateParams = {
             to_name: participant.name,
             to_email: targetEmail,
-            course_name: course.name,
+            // تم حذف course_name و college_name من هنا
             workshop_title: course.workshopTitle,
             workshop_duration: course.workshopDuration,
-            college_name: course.collegeName,
             instructor_name: course.instructorName,
             instructor_title: course.instructorTitle,
             dean_name: course.deanName,
@@ -1249,7 +1231,7 @@
 
         zip.generateAsync({type:"blob"})
             .then(function(content) {
-                saveAs(content, `شهادات_${course.name}.zip`);
+                saveAs(content, `شهادات_${course.workshopTitle}.zip`); // تم التعديل هنا لاسم الملف المضغوط
                 alert('تم تصدير جميع الشهادات بنجاح كملف ZIP!');
                 exportBtn.disabled = false;
                 exportBtn.textContent = 'تصدير جميع الشهادات كـ PDF (ملف مضغوط ZIP)';
@@ -1264,7 +1246,7 @@
 
     async function sendAllCertificatesAndReport() {
         window.open('https://script.google.com/macros/s/AKfycbxL0tU5gOytqp_-SgsJd175ez2UZriVLRGawr5F3XM/dev', '_blank');
-        
+
         alert('سيتم فتح رابط الشهادات في علامة تبويب جديدة.');
 
         const sendAllBtn = document.querySelector('.send-all-certificates-link-btn');
