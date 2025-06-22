@@ -577,6 +577,7 @@
             border-top: 1px solid #eee;
             color: #777;
             font-size: 0.9em;
+            white-space: nowrap; /* Keep content on one line */
         }
         .footer a {
             color: #007bff;
@@ -585,6 +586,9 @@
         }
         .footer a:hover {
             text-decoration: underline;
+        }
+        .footer span {
+            margin: 0 5px; /* Small spacing between elements */
         }
     </style>
 </head>
@@ -639,7 +643,7 @@
         <h2>1. رفع ملف أسماء المشتركين (Excel / CSV)</h2>
         <p>يرجى التأكد أن العمود الأول هو الاسم والعمود الثاني هو البريد الإلكتروني.</p>
         <p>
-            <a href="attached.csv" download="attached.csv" style="color: #007bff; text-decoration: none; font-weight: bold;">
+            <a href="data:text/csv;charset=utf-8,%EF%BB%BF%D8%A7%D9%84%D8%A7%D8%B3%D9%85,%D8%A7%D9%84%D8%A8%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A5%D9%84%D9%83%D8%AA%D8%B1%D9%88%D9%86%D9%8A%0A%D8%A7%D8%B3%D9%85%20%D8%A7%D9%84%D9%85%D8%AA%D8%AF%D8%B1%D8%A8%20%D9%85%D8%AB%D8%A7%D9%84,example@email.com" download="نموذج_المتدربين.csv" style="color: #007bff; text-decoration: none; font-weight: bold;">
                 ⬇️ اضغط هنا لتنزيل نموذج ملف المتدربين (CSV)
             </a>
         </p>
@@ -1404,9 +1408,9 @@
 ---
 
 <div class="footer">
-    <p>&copy; 2025 جميع الحقوق محفوظة.</p>
-    <p>برمجة وتطوير: Basem Salameh</p>
-    <p>للتواصل واتساب: <a href="https://wa.me/962781309346" target="_blank" rel="noopener noreferrer">00962781309346</a></p>
+    <span>&copy; 2025 جميع الحقوق محفوظة.</span>
+    <span>برمجة وتطوير: Basem Salameh</span>
+    <span>للتواصل واتساب: <a href="https://wa.me/962781309346" target="_blank" rel="noopener noreferrer">00962781309346</a></span>
 </div>
 
 </body>
