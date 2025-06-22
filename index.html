@@ -619,9 +619,14 @@
 
         <hr style="margin: 30px 0; border: 0; border-top: 1px solid #eee;">
 
-        <h2>1. رفع ملف أسماء المشتركين (Excel)</h2>
+        <h2>1. رفع ملف أسماء المشتركين (Excel / CSV)</h2>
         <p>يرجى التأكد أن العمود الأول هو الاسم والعمود الثاني هو البريد الإلكتروني.</p>
-        <input type="file" id="excelFile" accept=".xlsx" />
+        <p>
+            <a href="attached.csv" download="attached.csv" style="color: #007bff; text-decoration: none; font-weight: bold;">
+                ⬇️ اضغط هنا لتنزيل نموذج ملف المتدربين (CSV)
+            </a>
+        </p>
+        <input type="file" id="excelFile" accept=".xlsx, .csv" />
 
         <div class="manual-entry-section">
             <h3>أو 2. إضافة متدرب يدويًا</h3>
@@ -645,6 +650,9 @@
             </tbody>
         </table>
         <button class="submit" onclick="saveParticipantsAndGenerateCerts()" style="margin-top:20px;">حفظ المتدربين وعرض الشهادات</button>
+        <button class="export-btn" onclick="exportParticipantsToExcel()" style="margin-top:10px;">
+            ⬇️ تنزيل قائمة المتدربين الحالية (Excel)
+        </button>
     </div>
 
     <div id="exportTab" class="tab-content">
@@ -855,7 +863,7 @@
                     participantsData.push({ name: String(row[0]).trim(), email: row[1] ? String(row[1]).trim() : '' });
                 }
             }
-            alert(`تم تحميل ${participantsData.length} اسماً من ملف Excel.`);
+            alert(`تم تحميل ${participantsData.length} اسماً من الملف.`);
             renderParticipantListTable();
         }
         reader.readAsArrayBuffer(file);
@@ -1310,6 +1318,36 @@
         const sendAllBtn = document.querySelector('.send-all-certificates-link-btn');
         sendAllBtn.disabled = false;
         sendAllBtn.textContent = 'إرسال جميع الشهادات';
+    }
+
+    function exportParticipantsToExcel() {
+        if (participantsData.length === 0) {
+            alert('لا توجد بيانات متدربين لتنزيلها.');
+            return;
+        }
+
+        const ws_data = [
+            ['الاسم', 'البريد الإلكتروني'] // رؤوس الأعمدة
+        ];
+        // إضافة بيانات المتدربين
+        participantsData.forEach(p => {
+            ws_data.push([p.name, p.email || '']);
+        });
+
+        // إنشاء ورقة العمل (Worksheet)
+        const ws = XLSX.utils.aoa_to_sheet(ws_data);
+        // إنشاء كتاب العمل (Workbook)
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "المتدربون");
+
+        // تحديد اسم الملف
+        const course = courses[selectedCourseIndex];
+        const fileName = course ? `قائمة_متدربي_${course.workshopTitle}.xlsx` : `قائمة_المتدربين.xlsx`;
+
+        // كتابة الملف وتنزيله
+        XLSX.writeFile(wb, fileName);
+
+        alert('تم تنزيل قائمة المتدربين بنجاح!');
     }
 
     function saveData() {
