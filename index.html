@@ -569,6 +569,23 @@
                 color: #000 !important;
             }
         }
+        /* Footer Styles */
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            border-top: 1px solid #eee;
+            color: #777;
+            font-size: 0.9em;
+        }
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -650,8 +667,8 @@
             </tbody>
         </table>
         <button class="submit" onclick="saveParticipantsAndGenerateCerts()" style="margin-top:20px;">حفظ المتدربين وعرض الشهادات</button>
-        <button class="export-btn" onclick="exportParticipantsToExcel()" style="margin-top:10px;">
-            ⬇️ تنزيل قائمة المتدربين الحالية (Excel)
+        <button class="export-btn" onclick="exportParticipantsToCSV()" style="margin-top:10px;">
+            ⬇️ تنزيل قائمة المتدربين الحالية (CSV)
         </button>
     </div>
 
@@ -854,6 +871,7 @@
             const workbook = XLSX.read(data, {type:'array'});
             const sheetName = workbook.SheetNames[0];
             const sheet = workbook.Sheets[sheetName];
+            // XLSX.utils.sheet_to_json can handle both XLSX and CSV when file is read as array buffer
             const json = XLSX.utils.sheet_to_json(sheet, {header:1});
 
             participantsData = [];
@@ -1320,34 +1338,33 @@
         sendAllBtn.textContent = 'إرسال جميع الشهادات';
     }
 
-    function exportParticipantsToExcel() {
+    function exportParticipantsToCSV() {
         if (participantsData.length === 0) {
             alert('لا توجد بيانات متدربين لتنزيلها.');
             return;
         }
 
-        const ws_data = [
-            ['الاسم', 'البريد الإلكتروني'] // رؤوس الأعمدة
-        ];
-        // إضافة بيانات المتدربين
+        let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // BOM for UTF-8 in Excel
+        csvContent += "الاسم,البريد الإلكتروني\n"; // Headers
+
         participantsData.forEach(p => {
-            ws_data.push([p.name, p.email || '']);
+            const name = `"${p.name.replace(/"/g, '""')}"`; // Handle commas and quotes in names
+            const email = `"${(p.email || '').replace(/"/g, '""')}"`;
+            csvContent += `${name},${email}\n`;
         });
 
-        // إنشاء ورقة العمل (Worksheet)
-        const ws = XLSX.utils.aoa_to_sheet(ws_data);
-        // إنشاء كتاب العمل (Workbook)
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "المتدربون");
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
 
-        // تحديد اسم الملف
         const course = courses[selectedCourseIndex];
-        const fileName = course ? `قائمة_متدربي_${course.workshopTitle}.xlsx` : `قائمة_المتدربين.xlsx`;
+        const fileName = course ? `قائمة_متدربي_${course.workshopTitle}.csv` : `قائمة_المتدربين.csv`;
+        link.setAttribute("download", fileName);
+        document.body.appendChild(link); // Required for Firefox
+        link.click();
+        document.body.removeChild(link); // Clean up
 
-        // كتابة الملف وتنزيله
-        XLSX.writeFile(wb, fileName);
-
-        alert('تم تنزيل قائمة المتدربين بنجاح!');
+        alert('تم تنزيل قائمة المتدربين بصيغة CSV بنجاح!');
     }
 
     function saveData() {
@@ -1383,5 +1400,14 @@
         }
     }
 </script>
+
+---
+
+<div class="footer">
+    <p>&copy; 2025 جميع الحقوق محفوظة.</p>
+    <p>برمجة وتطوير: Basem Salameh</p>
+    <p>للتواصل واتساب: <a href="https://wa.me/962781309346" target="_blank" rel="noopener noreferrer">00962781309346</a></p>
+</div>
+
 </body>
 </html>
